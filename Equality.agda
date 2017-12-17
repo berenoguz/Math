@@ -23,6 +23,18 @@ module Math.Equality where
 
   data _==_ {n} {S : Set n} (φ : S) : S → Set where
     reflexive-== : φ == φ
+  
+  symmetric-== : ∀ {n} {φ ψ : Set n} → φ == ψ → ψ == φ
+  symmetric-== reflexive-== = reflexive-==
+
+  transitive-== : ∀ {n} {φ ψ σ : Set n} → φ == ψ → ψ == σ → φ == σ
+  transitive-== reflexive-== reflexive-== = reflexive-==
+
+  euclidean-== : ∀ {n} {φ ψ σ : Set n} → φ == ψ → φ == σ → ψ == σ
+  euclidean-== reflexive-== reflexive-== = reflexive-==
+
+  left-euclidean-== : ∀ {n} {φ ψ σ : Set n} → ψ == φ → σ == φ → ψ == σ
+  left-euclidean-== reflexive-== reflexive-== = reflexive-==
 
   _≠_ : ∀ {n} {S : Set n} → S → S → Set
   φ ≠ ψ = ¬ (φ == ψ)
