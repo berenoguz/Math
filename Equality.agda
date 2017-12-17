@@ -38,3 +38,12 @@ module Math.Equality where
 
   _≠_ : ∀ {n} {S : Set n} → S → S → Set
   φ ≠ ψ = ¬ (φ == ψ)
+
+  -- Uniqueness quantification
+  record ∃! {n} {S : Set n} (P : S → Set) : Set n where
+    constructor _,_,_
+    field
+      witness : S
+      proof : P witness
+      uniqueness : ∀ {x : S} → P x → x == witness
+  syntax ∃! (λ x → e) = ∃! x , e
