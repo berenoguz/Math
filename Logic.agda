@@ -55,9 +55,11 @@ module Math.Logic where
   φ ↔ ψ = (φ → ψ) ∧ (ψ → φ)
 
   -- Existential quantification
-  data ∃ {S : Set} (P : S → Set) : Set where
-    _,_ : (x : S) → P x → ∃ P
-  syntax ∃ (λ x → e) = ∃ x , e
+  record ∃ {n} {S : Set n} (P : S → Set) : Set n where
+    constructor ∃_,_
+    field
+      witness : S
+      proof : P witness
 
   postulate ¬¬φ→φ : ∀ {φ} → ¬ ¬ φ → φ
   postulate ⊥→φ : ∀ {φ : Set} → ⊥ → φ

@@ -41,9 +41,8 @@ module Math.Equality where
 
   -- Uniqueness quantification
   record ∃! {n} {S : Set n} (P : S → Set) : Set n where
-    constructor _,_,_
+    constructor ∃!_,_,_
     field
       witness : S
       proof : P witness
       uniqueness : ∀ {x : S} → P x → x == witness
-  syntax ∃! (λ x → e) = ∃! x , e
