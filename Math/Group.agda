@@ -17,19 +17,22 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Math.Group where
-  open import Math.Function using (Commutative ; Identity ; Inverse ; Unique-Identity)
+  open import Math.Function
   open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-==)
   open _∧_
 
+  -- Definition of group
+  -- Associative binary operation with an identity element and inverses.
   record Group {S : Set} (F : S → S → S) : Set where
     group-set = S
     group-operation = F
     field
-      commutative : Commutative F
+      associative : Associative F
       identity : Identity F
       inverse : Inverse F identity
   open Group
-    
+
+  -- Group identity is unique
   unique-identity : ∀ {S} {· : S → S → S} → Group · → Unique-Identity ·
   unique-identity 𝔊 = e ∵ identity-e ∵ unique-e
     where

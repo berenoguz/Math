@@ -22,6 +22,9 @@ module Math.Function where
   Binary-Operation : ∀ {n} → Set n → Set n → Set n → Set n
   Binary-Operation A B C = A → B → C
 
+  Associative : ∀ {n} {A : Set n} → Binary-Operation A A A → Set n
+  Associative F = ∀ {x y z} → F (F x y) z == F x (F y z)
+
   Commutative : ∀ {n} {A B : Set n} → Binary-Operation A A B → Set n
   Commutative F = ∀ {x y} → F x y == F y x
 
@@ -33,3 +36,6 @@ module Math.Function where
 
   Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → Set
   Inverse F record {witness = e} = ∀ {x} → ∃ x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)
+
+  Unique-Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → Set
+  Unique-Inverse F record {witness = e} = ∀ {x} → ∃! x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)
