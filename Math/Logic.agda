@@ -56,10 +56,12 @@ module Math.Logic where
 
   -- Existential quantification
   record ∃ {n} {S : Set n} (P : S → Set) : Set n where
-    constructor ∃_,_
+    constructor _∵_
+    claim = P
     field
       witness : S
       proof : P witness
+  syntax ∃ (λ x → e) = ∃ x , e
 
   postulate ¬¬φ→φ : ∀ {φ} → ¬ ¬ φ → φ
   postulate ⊥→φ : ∀ {φ : Set} → ⊥ → φ
