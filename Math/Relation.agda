@@ -16,8 +16,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 module Math.Relation where
-  open import Math.Logic using (¬_ ; _∨_)
-  open import Math.Equality using (_==_ ; _≠_)
+  open import Math.Logic using (¬_ ; _∨_ ; _==_ ; _≠_)
 
   Relation : Set → Set₁
   Relation S = S → S → Set

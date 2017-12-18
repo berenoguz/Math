@@ -18,11 +18,8 @@
 
 module Math.Group where
   open import Math.Function using (Commutative ; Identity ; Inverse ; Unique-Identity)
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro)
-  open import Math.Equality using (_==_ ; ∃! ; _∵_∵_ ; euclidean-==)
-
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-==)
   open _∧_
-  open ∃!
 
   record Group {S : Set} (F : S → S → S) : Set where
     group-set = S

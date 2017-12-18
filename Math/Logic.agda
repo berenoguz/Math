@@ -25,6 +25,8 @@ module Math.Logic where
   infix 23 _∧_
   infix 23 _∨_
   infixr 22 ∃
+  infix 21 _==_
+  infix 21 _≠_
 
   -- Disjunction
   data _∨_ : Set → Set → Set where
@@ -47,12 +49,20 @@ module Math.Logic where
   data ⊥ : Set where
 
   -- Negation
-  ¬_ : Set → Set
+  ¬_ : Set → Set -- ¬_ instead of ¬ makes parsing simpler
   ¬ φ = φ → ⊥
 
   -- Biconditional
   _↔_ : Set → Set → Set
   φ ↔ ψ = (φ → ψ) ∧ (ψ → φ)
+
+  -- Equality
+  data _==_ {n} {S : Set n} (φ : S) : S → Set where
+    reflexive-== : φ == φ -- Equality is reflexive
+
+  -- Inequality
+  _≠_ : ∀ {n} {S : Set n} → S → S → Set
+  φ ≠ ψ = ¬ (φ == ψ)
 
   -- Existential quantification
   record ∃ {n} {S : Set n} (P : S → Set) : Set n where
@@ -63,9 +73,25 @@ module Math.Logic where
       proof : P witness
   syntax ∃ (λ x → e) = ∃ x , e
 
+  -- Uniqueness quantification
+  record ∃! {n} {S : Set n} (P : S → Set) : Set n where
+    constructor _∵_∵_
+    claim = P
+    field
+      witness : S
+      proof : P witness
+      uniqueness : ∀ {x : S} → P x → x == witness
+  syntax ∃! (λ x → e) = ∃! x , e
+
+  -- Postulate Double Negation Elimination
   postulate ¬¬φ→φ : ∀ {φ} → ¬ ¬ φ → φ
+
+  -- The Principle of Explosion (𝐸𝑥 𝐹𝑎𝑙𝑠𝑜 𝑄𝑢𝑜𝑑𝑙𝑖𝑏𝑒𝑡)
   postulate ⊥→φ : ∀ {φ : Set} → ⊥ → φ
 
+  -- -- -- Theorems -- -- --
+
+  -- The Principle of Non-Contradiction
   φ∧¬φ→⊥ : ∀ {φ : Set} → φ ∧ ¬ φ → ⊥
   φ∧¬φ→⊥ (∧-intro φ ¬φ) = ¬φ φ
 
@@ -83,5 +109,23 @@ module Math.Logic where
     lemma₁ : ∀ {φ} → ¬ (φ ∨ ¬ φ) → φ → ⊥
     lemma₁ ¬[φ∨¬φ] φ = φ∧¬φ→⊥ (∧-intro (∨-intro₁ φ) ¬[φ∨¬φ])
 
+  -- The Principle of Excluded Middle (𝑇𝑒𝑟𝑡𝑖𝑖 𝐸𝑥𝑐𝑙𝑢𝑠𝑖)
   φ∨¬φ : ∀ {φ} → φ ∨ ¬ φ
   φ∨¬φ = ¬¬φ→φ ¬¬[φ∨¬φ]
+
+  -- Equality is symmetric
+  symmetric-== : ∀ {n} {S : Set n} {φ ψ : S} → φ == ψ → ψ == φ
+  symmetric-== reflexive-== = reflexive-==
+
+  -- Equality is transitive
+  transitive-== : ∀ {n} {S : Set n} {φ ψ σ : S} → φ == ψ → ψ == σ → φ == σ
+  transitive-== reflexive-== reflexive-== = reflexive-==
+
+  -- Equality is right euclidean
+  euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → (φ == ψ) → (φ == σ) → (ψ == σ)
+  euclidean-== reflexive-== reflexive-== = reflexive-==
+
+  -- Equality is left euclidean
+  left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → ψ == φ → σ == φ → ψ == σ
+  left-euclidean-== reflexive-== reflexive-== = reflexive-==
+

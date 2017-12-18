@@ -17,8 +17,7 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Math.Function where
-  open import Math.Logic using (_∧_ ; ∃)
-  open import Math.Equality using (_==_ ; ∃!)
+  open import Math.Logic using (_∧_ ; ∃ ; _==_ ; ∃!)
 
   Binary-Operation : ∀ {n} → Set n → Set n → Set n → Set n
   Binary-Operation A B C = A → B → C
