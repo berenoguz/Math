@@ -54,17 +54,23 @@ module Math.Group where
     where
     S = group-set 𝔊
     _·_ = group-operation 𝔊
+    e : S
     e = ∃.witness (identity 𝔊)
     _⁻¹ : S → S
     x ⁻¹ = ∃.witness ((inverse-of 𝔊) x)
+    x⁻¹ : S
     x⁻¹ = x ⁻¹
     lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
       → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
     lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
     lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
     lemma₂ = associative 𝔊
-    lemma₃ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (e · inv)
-    lemma₃ = right-closure (_·_) (∧-elim₂ (∃.proof ((inverse-of 𝔊) x)))
+    lemma : (x⁻¹ · x) == e
+    lemma = ∧-elim₂ (∃.proof ((inverse-of 𝔊) x))
+    k : S
+    k = (x⁻¹ · x)
+    lemma₃ : ∀ {inv : S} → (k · inv) == (e · inv)
+    lemma₃ = {!!}
     lemma₄ : ∀ {inv : S} → inv == (e · inv)
     lemma₄ = symmetric-== (∧-elim₂ (∃.proof (identity 𝔊)))
     lemma₅ : ∀ {inv : S} → (x⁻¹ · (x · inv)) == inv

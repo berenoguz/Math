@@ -133,6 +133,8 @@ module Math.Logic where
   closure : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ == ψ → (f φ) == (f ψ)
   closure f reflexive-== = reflexive-==
 
-  postulate left-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (σ · φ) == (σ · ψ)
+  left-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (σ · φ) == (σ · ψ)
+  left-closure _ reflexive-== = reflexive-==
 
-  postulate right-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (φ · σ) == (ψ · σ)
+  right-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (φ · σ) == (φ · σ)
+  right-closure _ reflexive-== = reflexive-==
