@@ -80,7 +80,7 @@ module Math.Logic where
     field
       witness : S
       proof : P witness
-      uniqueness : ∀ {x : S} → P x → x == witness
+      uniqueness : (x : S) → P x → x == witness
   syntax ∃! (λ x → e) = ∃! x , e
 
   -- Postulate Double Negation Elimination
@@ -132,9 +132,3 @@ module Math.Logic where
   -- Applying closed functions to equal arguments
   closure : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ == ψ → (f φ) == (f ψ)
   closure f reflexive-== = reflexive-==
-
-  left-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (σ · φ) == (σ · ψ)
-  left-closure _ reflexive-== = reflexive-==
-
-  right-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (φ · σ) == (φ · σ)
-  right-closure _ reflexive-== = reflexive-==

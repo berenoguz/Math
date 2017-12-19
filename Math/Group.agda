@@ -18,7 +18,7 @@
 
 module Math.Group where
   open import Math.Function
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; symmetric-== ; left-euclidean-== ; right-closure)
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; symmetric-== ; left-euclidean-==)
   open _∧_
 
   -- Definition of group
@@ -44,10 +44,10 @@ module Math.Group where
     _·_ = group-operation 𝔊
     e = ∃.witness (identity 𝔊)
     identity-e = ∃.proof (identity 𝔊)
-    unique-e : ∀ {e′ : S} → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
-    unique-e identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
+    unique-e : (e′ : S) → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
+    unique-e e′ identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
 
-  -- For each group element, its inverse is unique
+  -- -- For each group element, its inverse is unique
   unique-inverse : ∀ {S} {· : S → S → S} → (G : Group ·)
     → (x : S) → Unique-Inverse · (identity G) x
   unique-inverse 𝔊 x = (x ⁻¹) ∵ (∃.proof ((inverse-of 𝔊) x)) ∵ uniqueness
@@ -65,18 +65,14 @@ module Math.Group where
     lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
     lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
     lemma₂ = associative 𝔊
-    lemma : (x⁻¹ · x) == e
-    lemma = ∧-elim₂ (∃.proof ((inverse-of 𝔊) x))
-    k : S
-    k = (x⁻¹ · x)
-    lemma₃ : ∀ {inv : S} → (k · inv) == (e · inv)
-    lemma₃ = {!!}
-    lemma₄ : ∀ {inv : S} → inv == (e · inv)
-    lemma₄ = symmetric-== (∧-elim₂ (∃.proof (identity 𝔊)))
-    lemma₅ : ∀ {inv : S} → (x⁻¹ · (x · inv)) == inv
-    lemma₅ = euclidean-== lemma₂ (left-euclidean-== lemma₃ lemma₄)
+    lemma₃ : (inv : S) → ((x⁻¹ · x) · inv) == (e · inv)
+    lemma₃ inv = closure (λ a → a · inv) (∧-elim₂ (∃.proof ((inverse-of 𝔊) x)))
+    lemma₄ : (inv : S) → inv == (e · inv)
+    lemma₄ inv = symmetric-== (∧-elim₂ (∃.proof (identity 𝔊)))
+    lemma₅ : (inv : S) → (x⁻¹ · (x · inv)) == inv
+    lemma₅ inv = euclidean-== lemma₂ (left-euclidean-== (lemma₃ inv) (lemma₄ inv))
     lemma₆ : (x⁻¹ · e) == x⁻¹
     lemma₆ = ∧-elim₁ (∃.proof (identity 𝔊))
-    uniqueness : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
+    uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e)
       → inv == x⁻¹
-    uniqueness ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) lemma₅))
+    uniqueness inv ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) (lemma₅ inv)))
