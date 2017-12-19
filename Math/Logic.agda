@@ -129,4 +129,10 @@ module Math.Logic where
   left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → ψ == φ → σ == φ → ψ == σ
   left-euclidean-== reflexive-== reflexive-== = reflexive-==
 
-  -- Applying total functions to equality
+  -- Applying closed functions to equal arguments
+  closure : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ == ψ → (f φ) == (f ψ)
+  closure f reflexive-== = reflexive-==
+
+  postulate left-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (σ · φ) == (σ · ψ)
+
+  postulate right-closure : ∀ {n} {S : Set n} {φ ψ σ : S} → (_·_ : S → S → S) → φ == ψ → (φ · σ) == (ψ · σ)

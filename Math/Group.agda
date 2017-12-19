@@ -18,7 +18,7 @@
 
 module Math.Group where
   open import Math.Function
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-==)
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; symmetric-== ; left-euclidean-== ; right-closure)
   open _∧_
 
   -- Definition of group
@@ -54,8 +54,23 @@ module Math.Group where
     where
     S = group-set 𝔊
     _·_ = group-operation 𝔊
-    e = ∃.witness (identity 𝔊)    
+    e = ∃.witness (identity 𝔊)
     _⁻¹ : S → S
     x ⁻¹ = ∃.witness ((inverse-of 𝔊) x)
-    uniqueness : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e) → inv == (x ⁻¹)
-    uniqueness = {!!}
+    x⁻¹ = x ⁻¹
+    lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
+      → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
+    lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
+    lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
+    lemma₂ = associative 𝔊
+    lemma₃ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (e · inv)
+    lemma₃ = right-closure (_·_) (∧-elim₂ (∃.proof ((inverse-of 𝔊) x)))
+    lemma₄ : ∀ {inv : S} → inv == (e · inv)
+    lemma₄ = symmetric-== (∧-elim₂ (∃.proof (identity 𝔊)))
+    lemma₅ : ∀ {inv : S} → (x⁻¹ · (x · inv)) == inv
+    lemma₅ = euclidean-== lemma₂ (left-euclidean-== lemma₃ lemma₄)
+    lemma₆ : (x⁻¹ · e) == x⁻¹
+    lemma₆ = ∧-elim₁ (∃.proof (identity 𝔊))
+    uniqueness : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
+      → inv == x⁻¹
+    uniqueness ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) lemma₅))
