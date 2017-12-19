@@ -129,3 +129,4 @@ module Math.Logic where
   left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → ψ == φ → σ == φ → ψ == σ
   left-euclidean-== reflexive-== reflexive-== = reflexive-==
 
+  -- Applying total functions to equality

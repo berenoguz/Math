@@ -30,6 +30,10 @@ module Math.Group where
       associative : Associative F
       identity : Identity F
       inverse : Inverse F identity
+    identity-element = ∃.witness identity -- Identity Element
+    inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
+      → ∃ x⁻¹ , (F x x⁻¹ == identity-element) ∧ (F x⁻¹ x == identity-element)
+    inverse-of x = inverse
   open Group
 
   -- Group identity is unique
@@ -42,3 +46,16 @@ module Math.Group where
     identity-e = ∃.proof (identity 𝔊)
     unique-e : ∀ {e′ : S} → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
     unique-e identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
+
+  -- For each group element, its inverse is unique
+  unique-inverse : ∀ {S} {· : S → S → S} → (G : Group ·)
+    → (x : S) → Unique-Inverse · (identity G) x
+  unique-inverse 𝔊 x = (x ⁻¹) ∵ (∃.proof ((inverse-of 𝔊) x)) ∵ uniqueness
+    where
+    S = group-set 𝔊
+    _·_ = group-operation 𝔊
+    e = ∃.witness (identity 𝔊)    
+    _⁻¹ : S → S
+    x ⁻¹ = ∃.witness ((inverse-of 𝔊) x)
+    uniqueness : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e) → inv == (x ⁻¹)
+    uniqueness = {!!}
