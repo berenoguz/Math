@@ -25,3 +25,12 @@ All my work is released under GNU GPLv3+. You're welcome to study, change, redis
 ### First-Order Logic
 
 Basic logical connectives and quantifiers are defined. Basic theorems are proved.
+
+### Group Theory
+
+Defined group. 
+
+Proved theorems:
+
+ * Identity is unique
+ * For each element, its inverse is unique
