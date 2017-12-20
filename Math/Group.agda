@@ -23,56 +23,47 @@ module Math.Group where
 
   -- Definition of group
   -- Associative binary operation with an identity element and inverses.
-  record Group {S : Set} (F : S → S → S) : Set where
-    group-set = S
-    group-operation = F
+  record Group {A : Set} (F : A → A → A) : Set where
+    S = A
+    _·_ = F
     field
       associative : Associative F
       identity : Identity F
       inverse : Inverse F identity
-    identity-element = ∃.witness identity -- Identity Element
+    
+    e = ∃.witness identity -- Identity Element
+    identity-e = ∃.proof identity -- Proof that e is the identity element
+    unique-identity : Unique-Identity _·_ -- Group identity is unique
+    unique-identity = e ∵ identity-e ∵ unique-e
+      where
+      unique-e : (e′ : S) → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
+      unique-e e′ identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
+    unique-e = ∃!.uniqueness unique-identity -- Proof that e is unique
+
     inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
-      → ∃ x⁻¹ , (F x x⁻¹ == identity-element) ∧ (F x⁻¹ x == identity-element)
+      → ∃ x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)
     inverse-of x = inverse
-  open Group
+    _⁻¹ : S → S -- Inverse function. Map x ↦ x⁻¹
+    x ⁻¹ = ∃.witness (inverse-of x)
 
-  -- Group identity is unique
-  unique-identity : ∀ {S} {· : S → S → S} → Group · → Unique-Identity ·
-  unique-identity 𝔊 = e ∵ identity-e ∵ unique-e
-    where
-    S = group-set 𝔊
-    _·_ = group-operation 𝔊
-    e = ∃.witness (identity 𝔊)
-    identity-e = ∃.proof (identity 𝔊)
-    unique-e : (e′ : S) → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
-    unique-e e′ identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
-
-  -- -- For each group element, its inverse is unique
-  unique-inverse : ∀ {S} {· : S → S → S} → (G : Group ·)
-    → (x : S) → Unique-Inverse · (identity G) x
-  unique-inverse 𝔊 x = (x ⁻¹) ∵ (∃.proof ((inverse-of 𝔊) x)) ∵ uniqueness
-    where
-    S = group-set 𝔊
-    _·_ = group-operation 𝔊
-    e : S
-    e = ∃.witness (identity 𝔊)
-    _⁻¹ : S → S
-    x ⁻¹ = ∃.witness ((inverse-of 𝔊) x)
-    x⁻¹ : S
-    x⁻¹ = x ⁻¹
-    lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
-      → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
-    lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
-    lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
-    lemma₂ = associative 𝔊
-    lemma₃ : (inv : S) → ((x⁻¹ · x) · inv) == (e · inv)
-    lemma₃ inv = closure (λ a → a · inv) (∧-elim₂ (∃.proof ((inverse-of 𝔊) x)))
-    lemma₄ : (inv : S) → inv == (e · inv)
-    lemma₄ inv = symmetric-== (∧-elim₂ (∃.proof (identity 𝔊)))
-    lemma₅ : (inv : S) → (x⁻¹ · (x · inv)) == inv
-    lemma₅ inv = euclidean-== lemma₂ (left-euclidean-== (lemma₃ inv) (lemma₄ inv))
-    lemma₆ : (x⁻¹ · e) == x⁻¹
-    lemma₆ = ∧-elim₁ (∃.proof (identity 𝔊))
-    uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e)
-      → inv == x⁻¹
-    uniqueness inv ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) (lemma₅ inv)))
+    -- For each group element, its inverse is unique
+    unique-inverse : (x : S) → Unique-Inverse _·_ identity x
+    unique-inverse x = x⁻¹ ∵ ∃.proof (inverse-of x) ∵ uniqueness
+      where
+      x⁻¹ = x ⁻¹
+      lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
+        → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
+      lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
+      lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
+      lemma₂ = associative
+      lemma₃ : (inv : S) → ((x⁻¹ · x) · inv) == (e · inv)
+      lemma₃ inv = closure (λ a → a · inv) (∧-elim₂ (∃.proof (inverse-of x)))
+      lemma₄ : (inv : S) → inv == (e · inv)
+      lemma₄ inv = symmetric-== (∧-elim₂ (∃.proof identity))
+      lemma₅ : (inv : S) → (x⁻¹ · (x · inv)) == inv
+      lemma₅ inv = euclidean-== lemma₂ (left-euclidean-== (lemma₃ inv) (lemma₄ inv))
+      lemma₆ : (x⁻¹ · e) == x⁻¹
+      lemma₆ = ∧-elim₁ (∃.proof identity)
+      uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e)
+        → inv == x⁻¹
+      uniqueness inv ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) (lemma₅ inv)))
