@@ -21,10 +21,10 @@ module Math.Logic where
   -- -- -- Definitions -- -- --
 
   -- Operators
-  infixr 24 ¬_
-  infix 23 _∧_
-  infix 23 _∨_
-  infixr 22 ∃
+  infixr 25 ¬_
+  infix 24 _∧_
+  infix 24 _∨_
+  infixr 23 ∃
   infix 21 _==_
   infix 21 _≠_
 
@@ -126,7 +126,7 @@ module Math.Logic where
   euclidean-== reflexive-== reflexive-== = reflexive-==
 
   -- Equality is left euclidean
-  left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → ψ == φ → σ == φ → ψ == σ
+  left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → (ψ == φ) → (σ == φ) → (ψ == σ)
   left-euclidean-== reflexive-== reflexive-== = reflexive-==
 
   -- Applying closed functions to equal arguments

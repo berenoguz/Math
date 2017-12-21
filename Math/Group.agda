@@ -43,6 +43,7 @@ module Math.Group where
     inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
       → ∃ x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)
     inverse-of x = inverse
+    infixl 22 _⁻¹
     _⁻¹ : S → S -- Inverse function. Map x ↦ x⁻¹
     x ⁻¹ = ∃.witness (inverse-of x)
 
@@ -67,3 +68,12 @@ module Math.Group where
       uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e)
         → inv == x⁻¹
       uniqueness inv ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) (lemma₅ inv)))
+
+    -- Inverse of inverse of a is a
+    a⁻¹⁻¹==a : (a : S) → a ⁻¹ ⁻¹ == a
+    a⁻¹⁻¹==a a = left-euclidean-== (euclidean-== (lemma₂ (a ⁻¹ ⁻¹)) lemma₁) (symmetric-== (lemma₂ a))
+      where
+      lemma₁ : (a · (a ⁻¹ · a ⁻¹ ⁻¹)) == (a · (a ⁻¹ · a))
+      lemma₁ = closure (λ x → a · x) (left-euclidean-== (∧-elim₁ (∃.proof inverse)) (∧-elim₂ (∃.proof inverse)))
+      lemma₂ : (t : S) → (a · (a ⁻¹ · t)) == t
+      lemma₂ t = euclidean-== associative (left-euclidean-== (closure (λ x → x · t) (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
