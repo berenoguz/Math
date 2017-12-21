@@ -32,5 +32,9 @@ Defined group.
 
 Proved theorems:
 
- * Identity is unique
- * For each element, its inverse is unique
+ * Completed all standard group bookkeeping theorems:
+  * Identity is unique
+  * For each element, its inverse is unique
+  * (a⁻¹)⁻¹ = a
+  * (a · b)⁻¹ = b⁻¹ · a⁻¹
+ 
