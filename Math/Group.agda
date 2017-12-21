@@ -18,7 +18,7 @@
 
 module Math.Group where
   open import Math.Function
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; symmetric-== ; left-euclidean-==)
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧ᵢ ; _==_ ; ∃! ; _∵_∵_ ; ▶ ; ■ ; ◆ ; ◀)
   open _∧_
 
   -- Definition of group
@@ -37,7 +37,7 @@ module Math.Group where
     unique-identity = e ∵ identity-e ∵ unique-e
       where
       unique-e : (e′ : S) → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
-      unique-e e′ identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
+      unique-e e′ identity-e′ = ▶ (∧ₑ₂ identity-e) (∧ₑ₁ identity-e′)
     unique-e = ∃!.uniqueness unique-identity -- Proof that e is unique
 
     inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
@@ -54,36 +54,36 @@ module Math.Group where
       x⁻¹ = x ⁻¹
       lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
         → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
-      lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
+      lemma₁ inverse-inv = ■ (λ a → x⁻¹ · a) (∧ₑ₁ inverse-inv)
       lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
       lemma₂ = associative
       lemma₃ : (inv : S) → ((x⁻¹ · x) · inv) == (e · inv)
-      lemma₃ inv = closure (λ a → a · inv) (∧-elim₂ (∃.proof (inverse-of x)))
+      lemma₃ inv = ■ (λ a → a · inv) (∧ₑ₂ (∃.proof (inverse-of x)))
       lemma₄ : (inv : S) → inv == (e · inv)
-      lemma₄ inv = symmetric-== (∧-elim₂ (∃.proof identity))
+      lemma₄ inv = ◆ (∧ₑ₂ (∃.proof identity))
       lemma₅ : (inv : S) → (x⁻¹ · (x · inv)) == inv
-      lemma₅ inv = euclidean-== lemma₂ (left-euclidean-== (lemma₃ inv) (lemma₄ inv))
+      lemma₅ inv = ▶ lemma₂ (◀ (lemma₃ inv) (lemma₄ inv))
       lemma₆ : (x⁻¹ · e) == x⁻¹
-      lemma₆ = ∧-elim₁ (∃.proof identity)
+      lemma₆ = ∧ₑ₁ (∃.proof identity)
       uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e)
         → inv == x⁻¹
-      uniqueness inv ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) (lemma₅ inv)))
+      uniqueness inv ass = ◆ (▶ lemma₆ (▶ (lemma₁ ass) (lemma₅ inv)))
 
     -- Inverse of inverse of a is a
     a⁻¹⁻¹==a : (a : S) → a ⁻¹ ⁻¹ == a
-    a⁻¹⁻¹==a a = left-euclidean-== (euclidean-== (lemma₂ (a ⁻¹ ⁻¹)) lemma₁) (symmetric-== (lemma₂ a))
+    a⁻¹⁻¹==a a = ◀ (▶ (lemma₂ (a ⁻¹ ⁻¹)) lemma₁) (◆ (lemma₂ a))
       where
       lemma₁ : (a · (a ⁻¹ · a ⁻¹ ⁻¹)) == (a · (a ⁻¹ · a))
-      lemma₁ = closure (λ x → a · x) (left-euclidean-== (∧-elim₁ (∃.proof inverse)) (∧-elim₂ (∃.proof inverse)))
+      lemma₁ = ■ (λ x → a · x) (◀ (∧ₑ₁ (∃.proof inverse)) (∧ₑ₂ (∃.proof inverse)))
       lemma₂ : (t : S) → (a · (a ⁻¹ · t)) == t
-      lemma₂ t = euclidean-== associative (left-euclidean-== (closure (λ x → x · t) (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
+      lemma₂ t = ▶ associative (◀ (■ (λ x → x · t) (∧ₑ₁ (∃.proof inverse))) (◆ (∧ₑ₂ (∃.proof identity))))
 
     -- (a · b)⁻¹ = b⁻¹ · a⁻¹
     [a·b]⁻¹==b⁻¹·a⁻¹ : (a b : S) → (a · b) ⁻¹ == (b ⁻¹ · a ⁻¹)
-    [a·b]⁻¹==b⁻¹·a⁻¹ a b = symmetric-== (left-euclidean-== (left-euclidean-== (closure (λ x → b ⁻¹ · x) lemma₂) associative) (euclidean-== (∧-elim₂ (∃.proof identity)) (closure (λ x → x · c) (symmetric-== (∧-elim₂ (∃.proof inverse))))))
+    [a·b]⁻¹==b⁻¹·a⁻¹ a b = ◆ (◀ (◀ (■ (λ x → b ⁻¹ · x) lemma₂) associative) (▶ (∧ₑ₂ (∃.proof identity)) (■ (λ x → x · c) (◆ (∧ₑ₂ (∃.proof inverse))))))
       where
       c = (a · b) ⁻¹
       lemma₁ : a ⁻¹ == (a ⁻¹ · (a · (b · c)))
-      lemma₁ = symmetric-== (left-euclidean-== (closure (λ x → a ⁻¹ · x) (euclidean-== associative (∧-elim₁ (∃.proof inverse)))) (symmetric-== (∧-elim₁ (∃.proof identity))))
+      lemma₁ = ◆ (◀ (■ (λ x → a ⁻¹ · x) (▶ associative (∧ₑ₁ (∃.proof inverse)))) (◆ (∧ₑ₁ (∃.proof identity))))
       lemma₂ : a ⁻¹ == (b · c)
-      lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (closure (λ x → x · (b · c)) (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
+      lemma₂ = ◀ lemma₁ (▶ (∧ₑ₂ (∃.proof identity)) (◀ (■ (λ x → x · (b · c)) (◆ (∧ₑ₂ (∃.proof inverse)))) (◆ associative)))
