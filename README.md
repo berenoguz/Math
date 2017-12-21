@@ -8,7 +8,7 @@ I will be focusing on classical mathematics. This means, all of these proofs (po
 ## Requirements & Proof Checking
 You can see the proofs without needing any special software; although identifiers make use of Unicode characters (such as ∀, ∃, 𝔄, →), so, you should be able to see them.
 
-You need Agda version >=2.5.3 to check proofs, this is the only proof. Run:
+You need Agda version >=2.5.3 to check proofs, this is the only dependency. Run:
 
 ```
 make check
