@@ -103,8 +103,7 @@ module Math.Group where
         lemma : ∀ {a t} → (a · (a ⁻¹ · t)) == t
         lemma = assoc₁◀ (left-euclidean-== (mul₁ (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
 
-    -- (a · b)⁻¹ = b⁻¹ · a⁻¹
-    [a·b]⁻¹==b⁻¹·a⁻¹ : (a b : S) → (a · b) ⁻¹ == (b ⁻¹ · a ⁻¹)
+    [a·b]⁻¹==b⁻¹·a⁻¹ : ∀ a b → (a · b) ⁻¹ == (b ⁻¹ · a ⁻¹)
     [a·b]⁻¹==b⁻¹·a⁻¹ a b = symmetric-== (left-euclidean-== (left-euclidean-== (closure (λ x → b ⁻¹ · x) lemma₂) associative) (euclidean-== (∧-elim₂ (∃.proof identity)) (closure (λ x → x · c) (symmetric-== (∧-elim₂ (∃.proof inverse))))))
       where
         c = (a · b) ⁻¹
