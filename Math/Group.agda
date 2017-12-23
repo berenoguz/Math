@@ -18,7 +18,7 @@
 
 module Math.Group where
   open import Math.Function
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-== ; ¬_ ; _≠_)
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-== ; ¬_ ; _≠_ ; _∨_)
   open _∧_
   open import Math.NaturalNumbers using (ℕ ; _<_ ; 0̇ ; _′ ; ℕ⁺)
 
@@ -147,14 +147,15 @@ module Math.Group where
         lemma : ∀ {a t} → (a · (a ⁻¹ · t)) == t
         lemma = assoc₁◀ (left-euclidean-== (mul₁ (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
 
-    [a·b]⁻¹==b⁻¹·a⁻¹ : ∀ a b → (a · b) ⁻¹ == (b ⁻¹ · a ⁻¹)
-    [a·b]⁻¹==b⁻¹·a⁻¹ a b = symmetric-== (left-euclidean-== (left-euclidean-== (closure (λ x → b ⁻¹ · x) lemma₂) associative) (euclidean-== (∧-elim₂ (∃.proof identity)) (closure (λ x → x · c) (symmetric-== (∧-elim₂ (∃.proof inverse))))))
+    [a·b]⁻¹==b⁻¹·a⁻¹ : ∀ {a b} → (a · b) ⁻¹ == (b ⁻¹ · a ⁻¹)
+    [a·b]⁻¹==b⁻¹·a⁻¹ = symmetric-== (left-euclidean-== (left-euclidean-== (mul₂ lemma₂) associative) (euclidean-== (∧-elim₂ (∃.proof identity)) (mul₁ (symmetric-== (∧-elim₂ (∃.proof inverse))))))
       where
-        c = (a · b) ⁻¹
-        lemma₁ : a ⁻¹ == (a ⁻¹ · (a · (b · c)))
-        lemma₁ = symmetric-== (left-euclidean-== (closure (λ x → a ⁻¹ · x) (euclidean-== associative (∧-elim₁ (∃.proof inverse)))) (symmetric-== (∧-elim₁ (∃.proof identity))))
-        lemma₂ : a ⁻¹ == (b · c)
-        lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (closure (λ x → x · (b · c)) (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
+        lemma₁ : ∀ {a b} → a ⁻¹ == (a ⁻¹ · (a · (b · ((a · b) ⁻¹))))
+        lemma₁ = symmetric-== (left-euclidean-== (mul₂ (euclidean-== associative (∧-elim₁ (∃.proof inverse)))) (symmetric-== (∧-elim₁ (∃.proof identity))))
+        lemma₂ : ∀ {a b} → a ⁻¹ == (b · ((a · b) ⁻¹))
+        lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (mul₁ (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
+    b⁻¹·a⁻¹==[a·b]⁻¹ : ∀ {a b} → (b ⁻¹ · a ⁻¹) == (a · b) ⁻¹
+    b⁻¹·a⁻¹==[a·b]⁻¹ = symmetric-== [a·b]⁻¹==b⁻¹·a⁻¹
 
     -- Cancellation Laws
     cancel₁ : ∀ {a b c} → (a · b) == (a · c) → b == c
@@ -194,3 +195,36 @@ module Math.Group where
     field
       prop₁ : ∀ {x y a} → φ x (φ y a) == φ (x · y) a
       prop₂ : ∀ {a} → φ e a == a
+
+  -- Substitute
+  subst : ∀ {S : Set} {x y : S} → (R : S → Set) → R x → x == y → R y
+  subst _ Rx _==_.reflexive-== = Rx
+
+  record Subgroup {S} {F : S → S → S} (G : Group F) (R : S → Set) : Set where
+    open Group G
+    field
+      nonempty : R e
+      closed-· : ∀ {x y} → R x ∧ R y → R (x · y)
+      closed-⁻¹ : ∀ {x} → R x → R (x ⁻¹)
+
+  -- Subgroup Criterion
+  subgroup-criterion : ∀ {S} {F : S → S → S} → (G : Group F) → (R : S → Set)
+    → ∃ z , R z → (∀ {x y} → R x ∧ R y → R ((Group._·_ G) x ((Group._⁻¹ G) y)))
+    → Subgroup G R
+  subgroup-criterion G R ∃Rz ass = record {
+                     nonempty = Re ;
+                     closed-· = closed-·-proof ;
+                     closed-⁻¹ = closed-⁻¹-proof
+                     }
+    where
+    open Group G
+    z = ∃.witness ∃Rz
+    Rz = ∃.proof ∃Rz
+    Re : R e
+    Re = subst R (ass (∧-intro Rz Rz)) (∧-elim₁ (∃.proof inverse))
+    closed-⁻¹-proof : ∀ {x} → R x →  R (x ⁻¹)
+    closed-⁻¹-proof Rx = subst R (ass (∧-intro Re Rx)) (identₑ₂▶ _==_.reflexive-==)
+    lemma : ∀ {x y} → R (y ⁻¹ · x ⁻¹) → R (x · y)
+    lemma Ry⁻¹·x⁻¹ = subst R (closed-⁻¹-proof (subst R Ry⁻¹·x⁻¹ b⁻¹·a⁻¹==[a·b]⁻¹)) a⁻¹⁻¹==a 
+    closed-·-proof : ∀ {x y} → R x ∧ R y → R (x · y)
+    closed-·-proof (∧-intro Rx Ry) = lemma (ass (∧-intro (closed-⁻¹-proof Ry) Rx))
