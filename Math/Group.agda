@@ -69,8 +69,8 @@ module Math.Group where
     unique-identity : Unique-Identity _·_ -- Group identity is unique
     unique-identity = e ∵ identity-e ∵ unique-e
       where
-      unique-e : (e′ : S) → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
-      unique-e e′ identity-e′ = identₑ₂◀ (∧-elim₁ identity-e′)
+      unique-e : ∀ {e′} → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
+      unique-e identity-e′ = identₑ₂◀ (∧-elim₁ identity-e′)
     unique-e = ∃!.uniqueness unique-identity -- Proof that e is unique
 
     inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
@@ -81,14 +81,13 @@ module Math.Group where
     x ⁻¹ = ∃.witness (inverse-of x)
 
     -- For each group element, its inverse is unique
-    unique-inverse : (x : S) → Unique-Inverse _·_ identity x
-    unique-inverse x = x⁻¹ ∵ ∃.proof (inverse-of x) ∵ uniqueness
+    unique-inverse : Unique-Inverse _·_ identity
+    unique-inverse = ∃.witness inverse ∵ ∃.proof inverse ∵ uniqueness
       where
-      x⁻¹ = x ⁻¹
-      lemma : ∀ {inv : S} → (x⁻¹ · (x · inv)) == inv
+      lemma : ∀ {x inv} → (x ⁻¹ · (x · inv)) == inv
       lemma = assoc₁◀ (identₑ₂▶ (mul₁ (∧-elim₂ (∃.proof inverse))))
-      uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e) → inv == x⁻¹
-      uniqueness inv ass = symmetric-== (identₑ₁◀ (euclidean-== (mul₂ (∧-elim₁ ass)) lemma))
+      uniqueness : ∀ {x inv} → ((x · inv) == e) ∧ ((inv · x) == e) → inv == x ⁻¹
+      uniqueness ass = symmetric-== (identₑ₁◀ (euclidean-== (mul₂ (∧-elim₁ ass)) lemma))
 
     -- Inverse of inverse of a is a
     a⁻¹⁻¹==a : (a : S) → a ⁻¹ ⁻¹ == a

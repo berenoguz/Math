@@ -37,5 +37,5 @@ module Math.Function where
   Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → Set
   Inverse F record {witness = e} = ∀ {x} → ∃ x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)
 
-  Unique-Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → A → Set
-  Unique-Inverse F record {witness = e} = λ x → ∃! x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)
+  Unique-Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → Set
+  Unique-Inverse F record {witness = e} = ∀ {x} → ∃! x⁻¹ , (F x x⁻¹ == e) ∧ (F x⁻¹ x == e)

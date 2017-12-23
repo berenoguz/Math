@@ -80,7 +80,7 @@ module Math.Logic where
     field
       witness : S
       proof : P witness
-      uniqueness : (x : S) → P x → x == witness
+      uniqueness : ∀ {x} → P x → x == witness
   syntax ∃! (λ x → e) = ∃! x , e
 
   -- Postulate Double Negation Elimination
