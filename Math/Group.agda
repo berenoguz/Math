@@ -18,7 +18,7 @@
 
 module Math.Group where
   open import Math.Function
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; symmetric-== ; left-euclidean-==)
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-==)
   open _∧_
 
   -- Definition of group
@@ -30,14 +30,42 @@ module Math.Group where
       associative : Associative F
       identity : Identity F
       inverse : Inverse F identity
-    
+
+    -- Reasoning Helper Theorems
+    assoc₁◀ : ∀ {a b c d} → ((a · b) · c) == d → (a · (b · c)) == d
+    assoc₁◀ eq = euclidean-== associative eq
+    assoc₁▶ : ∀ {a b c d} → d == ((a · b) · c) → d == (a · (b · c))
+    assoc₁▶ eq = transitive-== eq associative
+    assoc₂◀ : ∀ {a b c d} → (a · (b · c)) == d → ((a · b) · c) == d
+    assoc₂◀ eq = euclidean-== (symmetric-== associative) eq
+    assoc₂▶ : ∀ {a b c d} → d == (a · (b · c)) → d == ((a · b) · c)
+    assoc₂▶ eq = transitive-== eq (symmetric-== associative)
+
     e = ∃.witness identity -- Identity Element
     identity-e = ∃.proof identity -- Proof that e is the identity element
+    identₑ₁◀ : ∀ {a b} → (a · e) == b → a == b
+    identₑ₁◀ eq = euclidean-== (∧-elim₁ identity-e) eq
+    identₑ₁▶ : ∀ {a b} → b == (a · e) → b == a
+    identₑ₁▶ eq = transitive-== eq (∧-elim₁ identity-e) 
+    identₑ₂◀ : ∀ {a b} → (e · a) == b → a == b
+    identₑ₂◀ eq = euclidean-== (∧-elim₂ identity-e) eq
+    identₑ₂▶ : ∀ {a b} → b == (e · a) → b == a
+    identₑ₂▶ eq = transitive-== eq (∧-elim₂ identity-e)
+    identᵢ₁◀ : ∀ {a b} → a == b → (a · e) == b
+    identᵢ₁◀ eq = transitive-== (∧-elim₁ identity-e) eq
+    identᵢ₁▶ : ∀ {a b} → a == b → a == (b · e)
+    identᵢ₁▶ eq = transitive-== eq (symmetric-== (∧-elim₁ identity-e))
+    identᵢ₂◀ : ∀ {a b} → a == b → (e · a) == b
+    identᵢ₂◀ eq = transitive-== (∧-elim₂ identity-e) eq
+    identᵢ₂▶ : ∀ {a b} → a == b → a == (e · b)
+    identᵢ₂▶ eq = transitive-== eq (symmetric-== (∧-elim₂ identity-e))
+
+    -- Identity Theorems
     unique-identity : Unique-Identity _·_ -- Group identity is unique
     unique-identity = e ∵ identity-e ∵ unique-e
       where
       unique-e : (e′ : S) → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
-      unique-e e′ identity-e′ = euclidean-== (∧-elim₂ identity-e) (∧-elim₁ identity-e′)
+      unique-e e′ identity-e′ = identₑ₂◀ (∧-elim₁ identity-e′)
     unique-e = ∃!.uniqueness unique-identity -- Proof that e is unique
 
     inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
@@ -55,19 +83,10 @@ module Math.Group where
       lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
         → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
       lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
-      lemma₂ : ∀ {inv : S} → ((x⁻¹ · x) · inv) == (x⁻¹ · (x · inv))
-      lemma₂ = associative
-      lemma₃ : (inv : S) → ((x⁻¹ · x) · inv) == (e · inv)
-      lemma₃ inv = closure (λ a → a · inv) (∧-elim₂ (∃.proof (inverse-of x)))
-      lemma₄ : (inv : S) → inv == (e · inv)
-      lemma₄ inv = symmetric-== (∧-elim₂ (∃.proof identity))
-      lemma₅ : (inv : S) → (x⁻¹ · (x · inv)) == inv
-      lemma₅ inv = euclidean-== lemma₂ (left-euclidean-== (lemma₃ inv) (lemma₄ inv))
-      lemma₆ : (x⁻¹ · e) == x⁻¹
-      lemma₆ = ∧-elim₁ (∃.proof identity)
-      uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e)
-        → inv == x⁻¹
-      uniqueness inv ass = symmetric-== (euclidean-== lemma₆ (euclidean-== (lemma₁ ass) (lemma₅ inv)))
+      lemma₂ : (inv : S) → (x⁻¹ · (x · inv)) == inv
+      lemma₂ inv = assoc₁◀ (identₑ₂▶ (closure (λ a → a · inv) (∧-elim₂ (∃.proof inverse))))
+      uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e) → inv == x⁻¹
+      uniqueness inv ass = symmetric-== (identₑ₁◀ (euclidean-== (lemma₁ ass) (lemma₂ inv)))
 
     -- Inverse of inverse of a is a
     a⁻¹⁻¹==a : (a : S) → a ⁻¹ ⁻¹ == a
