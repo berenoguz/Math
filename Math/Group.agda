@@ -69,8 +69,8 @@ module Math.Group where
     unique-identity : Unique-Identity _·_ -- Group identity is unique
     unique-identity = e ∵ identity-e ∵ unique-e
       where
-      unique-e : ∀ {e′} → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
-      unique-e identity-e′ = identₑ₂◀ (∧-elim₁ identity-e′)
+        unique-e : ∀ {e′} → (∀ {x : S} → ((x · e′) == x) ∧ ((e′ · x) == x)) → e′ == e
+        unique-e identity-e′ = identₑ₂◀ (∧-elim₁ identity-e′)
     unique-e = ∃!.uniqueness unique-identity -- Proof that e is unique
 
     inverse-of : (x : S) -- Map x ↦ ∃ x⁻¹
@@ -80,30 +80,35 @@ module Math.Group where
     _⁻¹ : S → S -- Inverse function. Map x ↦ x⁻¹
     x ⁻¹ = ∃.witness (inverse-of x)
 
+    -- Inverse Theorems
+    a⁻¹·a⁻¹⁻¹==a·a⁻¹ : ∀ {a} → (a ⁻¹ · a ⁻¹ ⁻¹) == (a ⁻¹ · a)
+    a⁻¹·a⁻¹⁻¹==a·a⁻¹ = left-euclidean-== (∧-elim₁ (∃.proof inverse)) (∧-elim₂ (∃.proof inverse))
+
+    a·a⁻¹==a⁻¹·a⁻¹⁻¹ : ∀ {a} → (a ⁻¹ · a) == (a ⁻¹ · a ⁻¹ ⁻¹)
+    a·a⁻¹==a⁻¹·a⁻¹⁻¹ = symmetric-== a⁻¹·a⁻¹⁻¹==a·a⁻¹
+
     -- For each group element, its inverse is unique
     unique-inverse : Unique-Inverse _·_ identity
     unique-inverse = ∃.witness inverse ∵ ∃.proof inverse ∵ uniqueness
       where
-      lemma : ∀ {x inv} → (x ⁻¹ · (x · inv)) == inv
-      lemma = assoc₁◀ (identₑ₂▶ (mul₁ (∧-elim₂ (∃.proof inverse))))
-      uniqueness : ∀ {x inv} → ((x · inv) == e) ∧ ((inv · x) == e) → inv == x ⁻¹
-      uniqueness ass = symmetric-== (identₑ₁◀ (euclidean-== (mul₂ (∧-elim₁ ass)) lemma))
-
+        lemma : ∀ {x inv} → (x ⁻¹ · (x · inv)) == inv
+        lemma = assoc₁◀ (identₑ₂▶ (mul₁ (∧-elim₂ (∃.proof inverse))))
+        uniqueness : ∀ {x inv} → ((x · inv) == e) ∧ ((inv · x) == e) → inv == x ⁻¹
+        uniqueness ass = symmetric-== (identₑ₁◀ (euclidean-== (mul₂ (∧-elim₁ ass)) lemma))
+  
     -- Inverse of inverse of a is a
-    a⁻¹⁻¹==a : (a : S) → a ⁻¹ ⁻¹ == a
-    a⁻¹⁻¹==a a = left-euclidean-== (euclidean-== (lemma₂ (a ⁻¹ ⁻¹)) lemma₁) (symmetric-== (lemma₂ a))
+    a⁻¹⁻¹==a : ∀ {a} → a ⁻¹ ⁻¹ == a
+    a⁻¹⁻¹==a = left-euclidean-== (euclidean-== lemma (mul₂ a⁻¹·a⁻¹⁻¹==a·a⁻¹)) (symmetric-== lemma)
       where
-      lemma₁ : (a · (a ⁻¹ · a ⁻¹ ⁻¹)) == (a · (a ⁻¹ · a))
-      lemma₁ = mul₂ (left-euclidean-== (∧-elim₁ (∃.proof inverse)) (∧-elim₂ (∃.proof inverse)))
-      lemma₂ : (t : S) → (a · (a ⁻¹ · t)) == t
-      lemma₂ t = euclidean-== associative (left-euclidean-== (closure (λ x → x · t) (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
+        lemma : ∀ {a t} → (a · (a ⁻¹ · t)) == t
+        lemma = assoc₁◀ (left-euclidean-== (mul₁ (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
 
     -- (a · b)⁻¹ = b⁻¹ · a⁻¹
     [a·b]⁻¹==b⁻¹·a⁻¹ : (a b : S) → (a · b) ⁻¹ == (b ⁻¹ · a ⁻¹)
     [a·b]⁻¹==b⁻¹·a⁻¹ a b = symmetric-== (left-euclidean-== (left-euclidean-== (closure (λ x → b ⁻¹ · x) lemma₂) associative) (euclidean-== (∧-elim₂ (∃.proof identity)) (closure (λ x → x · c) (symmetric-== (∧-elim₂ (∃.proof inverse))))))
       where
-      c = (a · b) ⁻¹
-      lemma₁ : a ⁻¹ == (a ⁻¹ · (a · (b · c)))
-      lemma₁ = symmetric-== (left-euclidean-== (closure (λ x → a ⁻¹ · x) (euclidean-== associative (∧-elim₁ (∃.proof inverse)))) (symmetric-== (∧-elim₁ (∃.proof identity))))
-      lemma₂ : a ⁻¹ == (b · c)
-      lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (closure (λ x → x · (b · c)) (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
+        c = (a · b) ⁻¹
+        lemma₁ : a ⁻¹ == (a ⁻¹ · (a · (b · c)))
+        lemma₁ = symmetric-== (left-euclidean-== (closure (λ x → a ⁻¹ · x) (euclidean-== associative (∧-elim₁ (∃.proof inverse)))) (symmetric-== (∧-elim₁ (∃.proof identity))))
+        lemma₂ : a ⁻¹ == (b · c)
+        lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (closure (λ x → x · (b · c)) (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
