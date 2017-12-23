@@ -60,6 +60,11 @@ module Math.Group where
     identᵢ₂▶ : ∀ {a b} → a == b → a == (e · b)
     identᵢ₂▶ eq = transitive-== eq (symmetric-== (∧-elim₂ identity-e))
 
+    mul₁ : ∀ {a b c} → a == b → (a · c) == (b · c)
+    mul₁ _==_.reflexive-== = _==_.reflexive-==
+    mul₂ : ∀ {a b c} → a == b → (c · a) == (c · b)
+    mul₂ _==_.reflexive-== = _==_.reflexive-==
+    
     -- Identity Theorems
     unique-identity : Unique-Identity _·_ -- Group identity is unique
     unique-identity = e ∵ identity-e ∵ unique-e
@@ -80,20 +85,17 @@ module Math.Group where
     unique-inverse x = x⁻¹ ∵ ∃.proof (inverse-of x) ∵ uniqueness
       where
       x⁻¹ = x ⁻¹
-      lemma₁ : ∀ {inv : S} → ((x · inv) == e) ∧ ((inv · x) == e)
-        → (x⁻¹ · (x · inv)) == (x⁻¹ · e)
-      lemma₁ inverse-inv = closure (λ a → x⁻¹ · a) (∧-elim₁ inverse-inv)
-      lemma₂ : (inv : S) → (x⁻¹ · (x · inv)) == inv
-      lemma₂ inv = assoc₁◀ (identₑ₂▶ (closure (λ a → a · inv) (∧-elim₂ (∃.proof inverse))))
+      lemma : ∀ {inv : S} → (x⁻¹ · (x · inv)) == inv
+      lemma = assoc₁◀ (identₑ₂▶ (mul₁ (∧-elim₂ (∃.proof inverse))))
       uniqueness : (inv : S) → ((x · inv) == e) ∧ ((inv · x) == e) → inv == x⁻¹
-      uniqueness inv ass = symmetric-== (identₑ₁◀ (euclidean-== (lemma₁ ass) (lemma₂ inv)))
+      uniqueness inv ass = symmetric-== (identₑ₁◀ (euclidean-== (mul₂ (∧-elim₁ ass)) lemma))
 
     -- Inverse of inverse of a is a
     a⁻¹⁻¹==a : (a : S) → a ⁻¹ ⁻¹ == a
     a⁻¹⁻¹==a a = left-euclidean-== (euclidean-== (lemma₂ (a ⁻¹ ⁻¹)) lemma₁) (symmetric-== (lemma₂ a))
       where
       lemma₁ : (a · (a ⁻¹ · a ⁻¹ ⁻¹)) == (a · (a ⁻¹ · a))
-      lemma₁ = closure (λ x → a · x) (left-euclidean-== (∧-elim₁ (∃.proof inverse)) (∧-elim₂ (∃.proof inverse)))
+      lemma₁ = mul₂ (left-euclidean-== (∧-elim₁ (∃.proof inverse)) (∧-elim₂ (∃.proof inverse)))
       lemma₂ : (t : S) → (a · (a ⁻¹ · t)) == t
       lemma₂ t = euclidean-== associative (left-euclidean-== (closure (λ x → x · t) (∧-elim₁ (∃.proof inverse))) (symmetric-== (∧-elim₂ (∃.proof identity))))
 
