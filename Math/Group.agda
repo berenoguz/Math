@@ -18,8 +18,9 @@
 
 module Math.Group where
   open import Math.Function
-  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-==)
+  open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-== ; ¬_ ; _≠_)
   open _∧_
+  open import Math.NaturalNumbers using (ℕ ; _<_ ; 0̇ ; _′ ; ℕ⁺)
 
   -- Definition of group
   -- Associative binary operation with an identity element and inverses.
@@ -156,8 +157,22 @@ module Math.Group where
         lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (closure (λ x → x · (b · c)) (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
 
     -- Cancellation Laws
-
     cancel₁ : ∀ {a b c} → (a · b) == (a · c) → b == c
     cancel₁ eq = invₑ₂₁◆ (assoc₂◆ (mul₂ eq))
     cancel₂ : ∀ {a b c} → (b · a) == (c · a) → b == c
     cancel₂ eq = invₑ₁₂◆ (assoc₁◆ (mul₁ eq))
+
+    -- Exponentive Notation
+
+    _^_ : S → ℕ → S
+    a ^ 0̇ = e
+    a ^ n ′ = a · (a ^ n)
+
+    -- Order
+    record order (x : S) (n-proof : ℕ⁺) : Set where
+      n = ℕ⁺.value n-proof
+      field
+        prop₁ : (x ^ n) == e
+        minimum : ∀ {m} → (ℕ⁺.value m) < n → (x ^ n) ≠ e
+        
+      
