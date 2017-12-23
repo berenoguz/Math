@@ -30,15 +30,15 @@ module Math.Logic where
 
   -- Disjunction
   data _∨_ : Set → Set → Set where
-    ∨ᵢ₁ : ∀ {φ ψ} → φ → φ ∨ ψ -- Disjunction introduction
-    ∨ᵢ₂ : ∀ {φ ψ} → ψ → φ ∨ ψ
+    ∨-intro₁ : ∀ {φ ψ} → φ → φ ∨ ψ
+    ∨-intro₂ : ∀ {φ ψ} → ψ → φ ∨ ψ
 
   -- Logical Conjunction
   record _∧_ (φ ψ : Set) : Set where
-    constructor ∧ᵢ
+    constructor ∧-intro
     field
-      ∧ₑ₁_ : φ -- Conjunction elimination
-      ∧ₑ₂ : ψ
+      ∧-elim₁ : φ
+      ∧-elim₂ : ψ
   open _∧_
 
   -- True
@@ -58,7 +58,7 @@ module Math.Logic where
 
   -- Equality
   data _==_ {n} {S : Set n} (φ : S) : S → Set where
-    ● : φ == φ -- Equality is reflexive
+    reflexive-== : φ == φ -- Equality is reflexive
 
   -- Inequality
   _≠_ : ∀ {n} {S : Set n} → S → S → Set
@@ -93,48 +93,42 @@ module Math.Logic where
 
   -- The Principle of Non-Contradiction
   φ∧¬φ→⊥ : ∀ {φ : Set} → φ ∧ ¬ φ → ⊥
-  φ∧¬φ→⊥ (∧ᵢ φ ¬φ) = ¬φ φ
+  φ∧¬φ→⊥ (∧-intro φ ¬φ) = ¬φ φ
 
   ¬φ∨ψ→φ→ψ : ∀ {φ ψ : Set} → ¬ φ ∨ ψ → φ → ψ
-  ¬φ∨ψ→φ→ψ (∨ᵢ₁ ¬φ) = λ φ → ⊥→φ (φ∧¬φ→⊥ (∧ᵢ φ ¬φ))
-  ¬φ∨ψ→φ→ψ (∨ᵢ₂ ψ) = λ φ → ψ
+  ¬φ∨ψ→φ→ψ (∨-intro₁ ¬φ) = λ φ → ⊥→φ (φ∧¬φ→⊥ (∧-intro φ ¬φ))
+  ¬φ∨ψ→φ→ψ (∨-intro₂ ψ) = λ φ → ψ
 
-  -- Disjunction Elimination
-  ∨ₑ : ∀ {φ ψ σ : Set} → φ ∨ ψ → (φ → σ) → (ψ → σ) → σ
-  ∨ₑ (∨ᵢ₁ φ) φ→σ ψ→σ = φ→σ φ
-  ∨ₑ (∨ᵢ₂ ψ) φ→σ ψ→σ = ψ→σ ψ
+  ∨-elim : ∀ {φ ψ σ : Set} → φ ∨ ψ → (φ → σ) → (ψ → σ) → σ
+  ∨-elim (∨-intro₁ φ) φ→σ ψ→σ = φ→σ φ
+  ∨-elim (∨-intro₂ ψ) φ→σ ψ→σ = ψ→σ ψ
 
   ¬¬[φ∨¬φ] : ∀ {φ} → ¬ ¬ (φ ∨ ¬ φ)
-  ¬¬[φ∨¬φ] = λ ¬[φ∨¬φ] → φ∧¬φ→⊥ (∧ᵢ (∨ᵢ₂ λ φ → lemma₁ ¬[φ∨¬φ] φ) ¬[φ∨¬φ])
+  ¬¬[φ∨¬φ] = λ ¬[φ∨¬φ] → φ∧¬φ→⊥ (∧-intro (∨-intro₂ λ φ → lemma₁ ¬[φ∨¬φ] φ) ¬[φ∨¬φ])
     where
     lemma₁ : ∀ {φ} → ¬ (φ ∨ ¬ φ) → φ → ⊥
-    lemma₁ ¬[φ∨¬φ] φ = φ∧¬φ→⊥ (∧ᵢ (∨ᵢ₁ φ) ¬[φ∨¬φ])
+    lemma₁ ¬[φ∨¬φ] φ = φ∧¬φ→⊥ (∧-intro (∨-intro₁ φ) ¬[φ∨¬φ])
 
   -- The Principle of Excluded Middle (𝑇𝑒𝑟𝑡𝑖𝑖 𝐸𝑥𝑐𝑙𝑢𝑠𝑖)
   φ∨¬φ : ∀ {φ} → φ ∨ ¬ φ
   φ∨¬φ = ¬¬φ→φ ¬¬[φ∨¬φ]
 
-  -- Reasoning Helpers
-
   -- Equality is symmetric
-  ◆ : ∀ {n} {S : Set n} {φ ψ : S} → φ == ψ → ψ == φ
-  ◆ ● = ●
+  symmetric-== : ∀ {n} {S : Set n} {φ ψ : S} → φ == ψ → ψ == φ
+  symmetric-== reflexive-== = reflexive-==
 
   -- Equality is transitive
-  ▲ : ∀ {n} {S : Set n} {φ ψ σ : S} → ψ == φ → φ == σ → ψ == σ
-  ▲ ● ● = ●
+  transitive-== : ∀ {n} {S : Set n} {φ ψ σ : S} → φ == ψ → ψ == σ → φ == σ
+  transitive-== reflexive-== reflexive-== = reflexive-==
 
-  ▼ : ∀ {n} {S : Set n} {φ ψ σ : S} → (φ == ψ) → (σ == φ) → (ψ == σ)
-  ▼ ● ● = ●
+  -- Equality is right euclidean
+  euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → (φ == ψ) → (φ == σ) → (ψ == σ)
+  euclidean-== reflexive-== reflexive-== = reflexive-==
 
-  -- Equality is right-euclidean
-  ▶ : ∀ {n} {S : Set n} {φ ψ σ : S} → (φ == ψ) → (φ == σ) → (ψ == σ)
-  ▶ ● ● = ●
-
-  -- Equality is left-euclidean
-  ◀ : ∀ {n} {S : Set n} {φ ψ σ : S} → (ψ == φ) → (σ == φ) → (ψ == σ)
-  ◀ ● ● = ●
+  -- Equality is left euclidean
+  left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → (ψ == φ) → (σ == φ) → (ψ == σ)
+  left-euclidean-== reflexive-== reflexive-== = reflexive-==
 
   -- Applying closed functions to equal arguments
-  ■ : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ == ψ → (f φ) == (f ψ)
-  ■ f ● = ●
+  closure : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ == ψ → (f φ) == (f ψ)
+  closure f reflexive-== = reflexive-==
