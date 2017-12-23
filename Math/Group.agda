@@ -174,5 +174,23 @@ module Math.Group where
       field
         prop₁ : (x ^ n) == e
         minimum : ∀ {m} → (ℕ⁺.value m) < n → (x ^ n) ≠ e
-        
-      
+  
+  -- Group Homomorphism
+  record Homomorphism {S T} {_★_ : S → S → S} {_◇_ : T → T → T}
+    (G : Group _★_) (H : Group _◇_) (φ : S → T) : Set where
+      field
+        homomorphism : ∀ {x y} → φ (x ★ y) == (φ x ◇ φ y)
+
+  -- Group Isomorphism
+  record Isomorphism {S T} {_★_ : S → S → S} {_◇_ : T → T → T}
+    (G : Group _★_) (H : Group _◇_) (φ : S → T) : Set where
+      field
+        homomorphism-proof : Homomorphism G H φ
+        bijection : Bijection φ
+      homomorphism = Homomorphism.homomorphism homomorphism-proof
+
+  record Action {S} {F : S → S → S} (G : Group F) (A : Set) (φ : S → A → A) : Set where
+    open Group G
+    field
+      prop₁ : ∀ {x y a} → φ x (φ y a) == φ (x · y) a
+      prop₂ : ∀ {a} → φ e a == a
