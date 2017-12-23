@@ -40,7 +40,13 @@ module Math.Group where
     assoc₂◀ eq = euclidean-== (symmetric-== associative) eq
     assoc₂▶ : ∀ {a b c d} → d == (a · (b · c)) → d == ((a · b) · c)
     assoc₂▶ eq = transitive-== eq (symmetric-== associative)
-
+    assoc₁◆ : ∀ {a b c f g h}
+      → ((a · b) · c) == ((f · g) · h) → (a · (b · c)) == (f · (g · h))
+    assoc₁◆ eq = assoc₁◀ (assoc₁▶ eq)
+    assoc₂◆ : ∀ {a b c f g h}
+      → (a · (b · c)) == (f · (g · h)) → ((a · b) · c) == ((f · g) · h)
+    assoc₂◆ eq = assoc₂◀ (assoc₂▶ eq)
+    
     e = ∃.witness identity -- Identity Element
     identity-e = ∃.proof identity -- Proof that e is the identity element
     identₑ₁◀ : ∀ {a b} → (a · e) == b → a == b
@@ -87,6 +93,43 @@ module Math.Group where
     a·a⁻¹==a⁻¹·a⁻¹⁻¹ : ∀ {a} → (a ⁻¹ · a) == (a ⁻¹ · a ⁻¹ ⁻¹)
     a·a⁻¹==a⁻¹·a⁻¹⁻¹ = symmetric-== a⁻¹·a⁻¹⁻¹==a·a⁻¹
 
+    invₑ₁₁◀ : ∀ {a b c}
+      → ((a · a ⁻¹) · b) == c → b == c
+    invₑ₁₁◀ eq = euclidean-== (identₑ₂▶ (mul₁ (∧-elim₁ (∃.proof inverse)))) eq
+    invₑ₁₁▶ : ∀ {a b c}
+      → c == ((a · a ⁻¹) · b) → c == b
+    invₑ₁₁▶ eq = symmetric-== (invₑ₁₁◀ (symmetric-== eq))
+    invₑ₂₁◀ : ∀ {a b c}
+      → ((a ⁻¹ · a) · b) == c → b == c
+    invₑ₂₁◀ eq = euclidean-== (identₑ₂▶ (mul₁ (∧-elim₂ (∃.proof inverse)))) eq
+    invₑ₂₁▶ : ∀ {a b c}
+      → c == ((a ⁻¹ · a) · b) → c == b
+    invₑ₂₁▶ eq = symmetric-== (invₑ₂₁◀ (symmetric-== eq))
+    invₑ₁₁◆ : ∀ {a b f g}
+      → ((a · a ⁻¹) · b) == ((f · f ⁻¹) · g) → b == g
+    invₑ₁₁◆ eq = invₑ₁₁▶ (invₑ₁₁◀ eq)
+    invₑ₂₁◆ : ∀ {a b f g}
+      → ((a ⁻¹ · a) · b) == ((f ⁻¹ · f) · g) → b == g
+    invₑ₂₁◆ eq = invₑ₂₁▶ (invₑ₂₁◀ eq)
+    invₑ₁₂◀ : ∀ {a b c}
+      → (b · (a · a ⁻¹)) == c → b == c
+    invₑ₁₂◀ eq = euclidean-== (identₑ₁▶ (mul₂ (∧-elim₁ (∃.proof inverse)))) eq
+    invₑ₁₂▶ : ∀ {a b c}
+      → c == (b · (a · a ⁻¹)) → c == b
+    invₑ₁₂▶ eq = symmetric-== (invₑ₁₂◀ (symmetric-== eq))
+    invₑ₂₂◀ : ∀ {a b c}
+      → (b · (a ⁻¹ · a)) == c → b == c
+    invₑ₂₂◀ eq = euclidean-== (identₑ₁▶ (mul₂ (∧-elim₂ (∃.proof inverse)))) eq
+    invₑ₂₂▶ : ∀ {a b c}
+      → c == (b · (a ⁻¹ · a)) → c == b
+    invₑ₂₂▶ eq = symmetric-== (invₑ₂₂◀ (symmetric-== eq))
+    invₑ₁₂◆ : ∀ {a b f g}
+      → (b · (a · a ⁻¹) ) == (g · (f · f ⁻¹)) → b == g
+    invₑ₁₂◆ eq = invₑ₁₂▶ (invₑ₁₂◀ eq)
+    invₑ₂₂◆ : ∀ {a b f g}
+      → (b · (a ⁻¹ · a)) == (g · (f ⁻¹ · f)) → b == g
+    invₑ₂₂◆ eq = invₑ₂₂▶ (invₑ₂₂◀ eq)
+  
     -- For each group element, its inverse is unique
     unique-inverse : Unique-Inverse _·_ identity
     unique-inverse = ∃.witness inverse ∵ ∃.proof inverse ∵ uniqueness
@@ -111,3 +154,10 @@ module Math.Group where
         lemma₁ = symmetric-== (left-euclidean-== (closure (λ x → a ⁻¹ · x) (euclidean-== associative (∧-elim₁ (∃.proof inverse)))) (symmetric-== (∧-elim₁ (∃.proof identity))))
         lemma₂ : a ⁻¹ == (b · c)
         lemma₂ = left-euclidean-== lemma₁ (euclidean-== (∧-elim₂ (∃.proof identity)) (left-euclidean-== (closure (λ x → x · (b · c)) (symmetric-== (∧-elim₂ (∃.proof inverse)))) (symmetric-== associative)))
+
+    -- Cancellation Laws
+
+    cancel₁ : ∀ {a b c} → (a · b) == (a · c) → b == c
+    cancel₁ eq = invₑ₂₁◆ (assoc₂◆ (mul₂ eq))
+    cancel₂ : ∀ {a b c} → (b · a) == (c · a) → b == c
+    cancel₂ eq = invₑ₁₂◆ (assoc₁◆ (mul₁ eq))
