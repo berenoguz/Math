@@ -183,13 +183,17 @@ module Math.Group where
   
   -- Group Homomorphism
   record Homomorphism {S T} {_★_ : S → S → S} {_◇_ : T → T → T}
-    (G : Group _★_) (H : Group _◇_) (φ : S → T) : Set where
+    (G : Group _★_) (H : Group _◇_) (f : S → T) : Set where
+      φ = f
       field
         homomorphism : ∀ {x y} → φ (x ★ y) == (φ x ◇ φ y)
+      kernel : S → Set
+      kernel g = φ g == (Group.e H)
 
   -- Group Isomorphism
   record Isomorphism {S T} {_★_ : S → S → S} {_◇_ : T → T → T}
-    (G : Group _★_) (H : Group _◇_) (φ : S → T) : Set where
+    (G : Group _★_) (H : Group _◇_) (f : S → T) : Set where
+      φ = f    
       field
         homomorphism-proof : Homomorphism G H φ
         bijection : Bijection φ
