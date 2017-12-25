@@ -230,7 +230,10 @@ module Math.Group where
   Centralizer G A ∃Az g = ∀ {a} → A a → (g · a) == (a · g) where open Group G
 
   -- Alternative definition of centralizer
-  postulate alternative-centralizer : ∀ {S} {_·_ : S → S → S} {g a} → (G : Group _·_) → (g · (a · ((Group._⁻¹ G) g))) == a → (g · a) == (a · g)
+  alternative-centralizer : ∀ {S} {_·_ : S → S → S} {g a} → (G : Group _·_) → (g · (a · ((Group._⁻¹ G) g))) == a → (g · a) == (a · g)
+  alternative-centralizer G ass = euclidean-== (mul₂ ∘ invₑ₂₂▶ ← associative) (assoc₁◀ ∘ mul₁ ← ass)
+    where
+      open Group G
 
   centralizer-subgroup : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set)
     → (∃Az : ∃ z , (A z)) → Subgroup G (Centralizer G A ∃Az)
