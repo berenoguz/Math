@@ -33,6 +33,10 @@ module Math.Group where
       identity : Identity F
       inverse : Inverse F identity
 
+    -- A relation relating to all members of S
+    data _∈S (x : S) : Set where
+      all : x ∈S
+
     -- Reasoning Helper Theorems
     assoc₁◀ : ∀ {a b c d} → ((a · b) · c) == d → (a · (b · c)) == d
     assoc₁◀ eq = euclidean-== associative eq
@@ -191,11 +195,14 @@ module Math.Group where
         bijection : Bijection φ
       homomorphism = Homomorphism.homomorphism homomorphism-proof
 
-  record Action {S} {F : S → S → S} (G : Group F) (A : Set) (φ : S → A → A) : Set where
+  record Action {V} {F : V → V → V} (G : Group F) (A : Set) (f : V → A → A) : Set where
     open Group G
+    φ = f
     field
       prop₁ : ∀ {x y a} → φ x (φ y a) == φ (x · y) a
       prop₂ : ∀ {a} → φ e a == a
+    kernel : S → Set
+    kernel g = ∀ {s} → φ g s == s
 
   record Subgroup {S} {F : S → S → S} (G : Group F) (R : S → Set) : Set where
     open Group G
@@ -231,9 +238,7 @@ module Math.Group where
 
   -- Alternative definition of centralizer
   alternative-centralizer : ∀ {S} {_·_ : S → S → S} {g a} → (G : Group _·_) → (g · (a · ((Group._⁻¹ G) g))) == a → (g · a) == (a · g)
-  alternative-centralizer G ass = euclidean-== (mul₂ ∘ invₑ₂₂▶ ← associative) (assoc₁◀ ∘ mul₁ ← ass)
-    where
-      open Group G
+  alternative-centralizer G ass = euclidean-== (mul₂ ∘ invₑ₂₂▶ ← associative) (assoc₁◀ ∘ mul₁ ← ass) where open Group G
 
   centralizer-subgroup : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set)
     → (∃Az : ∃ z , (A z)) → Subgroup G (Centralizer G A ∃Az)
@@ -261,3 +266,16 @@ module Math.Group where
       closed-·-proof Rx∧Ry = λ Aa → lemma₅ ((lemma₃ (∧-elim₁ Rx∧Ry) (∧-elim₂ Rx∧Ry)) Aa)
       closed-⁻¹-proof : ∀ {x} → R x → R (x ⁻¹)
       closed-⁻¹-proof Rx = λ Aa → symmetric-== ∘ invₑ₁₂▶ ∘ assoc₁▶ ∘ mul₁ ∘ invₑ₂₁◀ ∘ assoc₂◆ ∘ mul₂ ∘ Rx ← Aa
+
+  Center : ∀ {S} {F : S → S → S} (G : Group F) → S → Set
+  Center G g = Centralizer G _∈S (e ∵ all) g where open Group G
+
+  -- Center is a subgroup
+  center-subgroup : ∀ {S} {F : S → S → S} (G : Group F) → Subgroup G (Center G)
+  center-subgroup G = centralizer-subgroup G _∈S (e ∵ all) where open Group G
+
+  Normalizer : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set) → ∃ z , (A z) → S → Set
+  Normalizer G A ∃Az g = ∀ {a} → A (g · (a · g ⁻¹)) where open Group G
+
+  Stabilizer : ∀ {A S} {F : A → A → A} {φ : A → S → S} (G : Group F) → Action G S φ → (s : S) → (g : A) → Set
+  Stabilizer G A s g = φ g s == s where open Action A 
