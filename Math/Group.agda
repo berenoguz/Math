@@ -17,6 +17,7 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Math.Group where
+  open import Math.Relation using (subst)
   open import Math.Function
   open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-== ; ¬_ ; _≠_ ; _∨_)
   open _∧_
@@ -195,10 +196,6 @@ module Math.Group where
     field
       prop₁ : ∀ {x y a} → φ x (φ y a) == φ (x · y) a
       prop₂ : ∀ {a} → φ e a == a
-
-  -- Substitute
-  subst : ∀ {S : Set} {x y : S} → (R : S → Set) → R x → x == y → R y
-  subst _ Rx _==_.reflexive-== = Rx
 
   record Subgroup {S} {F : S → S → S} (G : Group F) (R : S → Set) : Set where
     open Group G

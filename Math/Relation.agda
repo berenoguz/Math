@@ -18,6 +18,10 @@
 module Math.Relation where
   open import Math.Logic using (¬_ ; _∨_ ; _==_ ; _≠_)
 
+  -- Substitute
+  subst : ∀ {S : Set} {x y : S} → (R : S → Set) → R x → x == y → R y
+  subst _ Rx _==_.reflexive-== = Rx
+
   Relation : Set → Set₁
   Relation S = S → S → Set
 
