@@ -19,6 +19,14 @@
 module Math.Function where
   open import Math.Logic using (_∧_ ; ∃ ; _==_ ; ∃!)
 
+  infixr 30 _∘_
+  infixl 29 _←_
+
+  _∘_ : ∀ {n} {A B C : Set n} → (B → C) → (A → B) → (A → C)
+  f ∘ g = λ x → f (g x)
+  _←_ : ∀ {A B : Set} → (A → B) → A → B
+  f ← a = f a
+
   Binary-Operation : ∀ {n} → Set n → Set n → Set n → Set n
   Binary-Operation A B C = A → B → C
 

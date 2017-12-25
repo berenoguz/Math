@@ -96,10 +96,10 @@ module Math.Group where
 
     invₑ₁₁◀ : ∀ {a b c}
       → ((a · a ⁻¹) · b) == c → b == c
-    invₑ₁₁◀ eq = euclidean-== (identₑ₂▶ (mul₁ (∧-elim₁ (∃.proof inverse)))) eq
+    invₑ₁₁◀ eq = euclidean-== ((identₑ₂▶ ∘ mul₁ ∘ ∧-elim₁) (∃.proof inverse)) eq
     invₑ₁₁▶ : ∀ {a b c}
       → c == ((a · a ⁻¹) · b) → c == b
-    invₑ₁₁▶ eq = symmetric-== (invₑ₁₁◀ (symmetric-== eq))
+    invₑ₁₁▶ eq = (symmetric-== ∘ invₑ₁₁◀ ∘ symmetric-==) eq
     invₑ₂₁◀ : ∀ {a b c}
       → ((a ⁻¹ · a) · b) == c → b == c
     invₑ₂₁◀ eq = euclidean-== (identₑ₂▶ (mul₁ (∧-elim₂ (∃.proof inverse)))) eq
@@ -225,6 +225,39 @@ module Math.Group where
     closed-⁻¹-proof : ∀ {x} → R x →  R (x ⁻¹)
     closed-⁻¹-proof Rx = subst R (ass (∧-intro Re Rx)) (identₑ₂▶ _==_.reflexive-==)
     lemma : ∀ {x y} → R (y ⁻¹ · x ⁻¹) → R (x · y)
-    lemma Ry⁻¹·x⁻¹ = subst R (closed-⁻¹-proof (subst R Ry⁻¹·x⁻¹ b⁻¹·a⁻¹==[a·b]⁻¹)) a⁻¹⁻¹==a 
+    lemma Ry⁻¹·x⁻¹ = subst R (closed-⁻¹-proof (subst R Ry⁻¹·x⁻¹ b⁻¹·a⁻¹==[a·b]⁻¹)) a⁻¹⁻¹==a
     closed-·-proof : ∀ {x y} → R x ∧ R y → R (x · y)
     closed-·-proof (∧-intro Rx Ry) = lemma (ass (∧-intro (closed-⁻¹-proof Ry) Rx))
+
+  Centralizer : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set) → ∃ z , (A z) → S → Set
+  Centralizer G A ∃Az g = ∀ {a} → A a → (g · a) == (a · g) where open Group G
+
+  -- Alternative definition of centralizer
+  postulate alternative-centralizer : ∀ {S} {_·_ : S → S → S} {g a} → (G : Group _·_) → (g · (a · ((Group._⁻¹ G) g))) == a → (g · a) == (a · g)
+
+  centralizer-subgroup : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set)
+    → (∃Az : ∃ z , (A z)) → Subgroup G (Centralizer G A ∃Az)
+  centralizer-subgroup G A ∃Az = record {
+                           nonempty = Re ;
+                           closed-· = closed-·-proof ;
+                           closed-⁻¹ = closed-⁻¹-proof
+                           }
+    where
+      open Group G
+      R = Centralizer G A ∃Az
+      Re : R e
+      Re = λ Aa → identᵢ₁▶ ∘ identₑ₂▶ ← _==_.reflexive-==
+      lemma₁ : ∀ {x} → R x → (∀ {a} → A a → (x · (a · x ⁻¹)) == a)
+      lemma₁ Rx = λ Aa → invₑ₁₂▶ ∘ assoc₁◆ ∘ mul₁ ∘ Rx ← Aa
+      lemma₂ : ∀ {x a b c} → (x · (a · x ⁻¹)) == c → b == a → (x · (b · x ⁻¹)) == c
+      lemma₂ ass eq = euclidean-== (mul₂ ∘ mul₁ ∘ symmetric-== ← eq) ass
+      lemma₃ : ∀ {x y} → R x → R y → (∀ {a} → A a → (x · ((y · (a · y ⁻¹)) · x ⁻¹)) == a)
+      lemma₃ Rx Ry = λ Aa → (lemma₂ ((lemma₁ Rx) Aa) ((lemma₁ Ry) Aa))
+      lemma₄ : ∀ {x y a} → (x · ((y · (a · y ⁻¹)) · x ⁻¹)) == a → ((x · y) · (a · (x · y) ⁻¹)) == a
+      lemma₄ ass = euclidean-== (assoc₁▶ (transitive-== ((assoc₂▶ ∘ assoc₂▶ ∘ mul₂) (transitive-== associative (mul₂ associative))) (mul₂ ∘ symmetric-== ← [a·b]⁻¹==b⁻¹·a⁻¹))) ass
+      lemma₅ : ∀ {x y a} → (x · ((y · (a · y ⁻¹)) · x ⁻¹)) == a → ((x · y) · a) == (a · (x · y))
+      lemma₅ ass = (alternative-centralizer G) (lemma₄ ass)
+      closed-·-proof : ∀ {x y} → R x ∧ R y → R (x · y)
+      closed-·-proof Rx∧Ry = λ Aa → lemma₅ ((lemma₃ (∧-elim₁ Rx∧Ry) (∧-elim₂ Rx∧Ry)) Aa)
+      closed-⁻¹-proof : ∀ {x} → R x → R (x ⁻¹)
+      closed-⁻¹-proof Rx = λ Aa → symmetric-== ∘ invₑ₁₂▶ ∘ assoc₁▶ ∘ mul₁ ∘ invₑ₂₁◀ ∘ assoc₂◆ ∘ mul₂ ∘ Rx ← Aa
