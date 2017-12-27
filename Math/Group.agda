@@ -208,8 +208,9 @@ module Math.Group where
     kernel : S → Set
     kernel g = ∀ {s} → φ g s == s
 
-  record Subgroup {S} {F : S → S → S} (G : Group F) (R : S → Set) : Set where
+  record Subgroup {S} {F : S → S → S} (G : Group F) (P : S → Set) : Set where
     open Group G
+    R = P
     field
       nonempty : R e
       closed-· : ∀ {x y} → R x ∧ R y → R (x · y)
@@ -283,3 +284,25 @@ module Math.Group where
 
   Stabilizer : ∀ {A S} {F : A → A → A} {φ : A → S → S} (G : Group F) → Action G S φ → (s : S) → (g : A) → Set
   Stabilizer G A s g = φ g s == s where open Action A 
+
+  -- Cosets
+
+  Left-Coset : ∀ {S H} {F : S → S → S} (G : Group F) → Subgroup G H → S → S → Set
+  Left-Coset G H g h = R (g ⁻¹ · h)
+    where
+      open Group G
+      open Subgroup H
+
+  Normal : ∀ {S H} {F : S → S → S} → (G : Group F) → Subgroup G H → Set
+  Normal G H = ∀ {g n} → R n → R (g · (n · g ⁻¹))
+    where
+      open Group G
+      open Subgroup H
+
+  record Quotient-Group {S A} {F : S → S → S} (G : Group F) (H : Subgroup G A) (g : S) : Set where
+    N = Subgroup.R H -- Predicate : in subgroup H
+    R = λ h → Left-Coset G H g h -- Predicate : in left-coset
+    open Group G
+    field
+      normal : Normal G H
+    
