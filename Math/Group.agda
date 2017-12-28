@@ -22,6 +22,7 @@ module Math.Group where
   open import Math.Logic using (∃ ; _∵_ ; _∧_ ; ∧-intro ; _==_ ; ∃! ; _∵_∵_ ; euclidean-== ; closure ; transitive-== ; symmetric-== ; left-euclidean-== ; ¬_ ; _≠_ ; _∨_)
   open _∧_
   open import Math.NaturalNumbers using (ℕ ; _<_ ; 0̇ ; _′ ; ℕ⁺)
+  open import Math.SetTheory
 
   -- Definition of group
   -- Associative binary operation with an identity element and inverses.
@@ -208,90 +209,13 @@ module Math.Group where
     kernel : S → Set
     kernel g = ∀ {s} → φ g s == s
 
-  record Subgroup {S} {F : S → S → S} (G : Group F) (P : S → Set) : Set where
+  record Subgroup {S} {F : S → S → S} (G : Group F) (H : Subset S) : Set where
     open Group G
-    R = P
+    R = Subset.R H
     field
-      nonempty : R e
+      nonempty : ∃ x , R x
       closed-· : ∀ {x y} → R x ∧ R y → R (x · y)
       closed-⁻¹ : ∀ {x} → R x → R (x ⁻¹)
-
-  -- Subgroup Criterion
-  subgroup-criterion : ∀ {S} {F : S → S → S} → (G : Group F) → (R : S → Set)
-    → ∃ z , R z → (∀ {x y} → R x ∧ R y → R ((Group._·_ G) x ((Group._⁻¹ G) y)))
-    → Subgroup G R
-  subgroup-criterion G R ∃Rz ass = record {
-                     nonempty = Re ;
-                     closed-· = closed-·-proof ;
-                     closed-⁻¹ = closed-⁻¹-proof
-                     }
-    where
-    open Group G
-    z = ∃.witness ∃Rz
-    Rz = ∃.proof ∃Rz
-    Re : R e
-    Re = subst R (ass (∧-intro Rz Rz)) (∧-elim₁ (∃.proof inverse))
-    closed-⁻¹-proof : ∀ {x} → R x →  R (x ⁻¹)
-    closed-⁻¹-proof Rx = subst R (ass (∧-intro Re Rx)) (identₑ₂▶ _==_.reflexive-==)
-    lemma : ∀ {x y} → R (y ⁻¹ · x ⁻¹) → R (x · y)
-    lemma Ry⁻¹·x⁻¹ = subst R (closed-⁻¹-proof (subst R Ry⁻¹·x⁻¹ b⁻¹·a⁻¹==[a·b]⁻¹)) a⁻¹⁻¹==a
-    closed-·-proof : ∀ {x y} → R x ∧ R y → R (x · y)
-    closed-·-proof (∧-intro Rx Ry) = lemma (ass (∧-intro (closed-⁻¹-proof Ry) Rx))
-
-  Centralizer : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set) → ∃ z , (A z) → S → Set
-  Centralizer G A ∃Az g = ∀ {a} → A a → (g · a) == (a · g) where open Group G
-
-  -- Alternative definition of centralizer
-  alternative-centralizer : ∀ {S} {_·_ : S → S → S} {g a} → (G : Group _·_) → (g · (a · ((Group._⁻¹ G) g))) == a → (g · a) == (a · g)
-  alternative-centralizer G ass = euclidean-== (mul₂ ∘ invₑ₂₂▶ ← associative) (assoc₁◀ ∘ mul₁ ← ass) where open Group G
-
-  centralizer-subgroup : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set)
-    → (∃Az : ∃ z , (A z)) → Subgroup G (Centralizer G A ∃Az)
-  centralizer-subgroup G A ∃Az = record {
-                           nonempty = Re ;
-                           closed-· = closed-·-proof ;
-                           closed-⁻¹ = closed-⁻¹-proof
-                           }
-    where
-      open Group G
-      R = Centralizer G A ∃Az
-      Re : R e
-      Re = λ Aa → identᵢ₁▶ ∘ identₑ₂▶ ← _==_.reflexive-==
-      lemma₁ : ∀ {x} → R x → (∀ {a} → A a → (x · (a · x ⁻¹)) == a)
-      lemma₁ Rx = λ Aa → invₑ₁₂▶ ∘ assoc₁◆ ∘ mul₁ ∘ Rx ← Aa
-      lemma₂ : ∀ {x a b c} → (x · (a · x ⁻¹)) == c → b == a → (x · (b · x ⁻¹)) == c
-      lemma₂ ass eq = euclidean-== (mul₂ ∘ mul₁ ∘ symmetric-== ← eq) ass
-      lemma₃ : ∀ {x y} → R x → R y → (∀ {a} → A a → (x · ((y · (a · y ⁻¹)) · x ⁻¹)) == a)
-      lemma₃ Rx Ry = λ Aa → (lemma₂ ((lemma₁ Rx) Aa) ((lemma₁ Ry) Aa))
-      lemma₄ : ∀ {x y a} → (x · ((y · (a · y ⁻¹)) · x ⁻¹)) == a → ((x · y) · (a · (x · y) ⁻¹)) == a
-      lemma₄ ass = euclidean-== (assoc₁▶ (transitive-== ((assoc₂▶ ∘ assoc₂▶ ∘ mul₂) (transitive-== associative (mul₂ associative))) (mul₂ ∘ symmetric-== ← [a·b]⁻¹==b⁻¹·a⁻¹))) ass
-      lemma₅ : ∀ {x y a} → (x · ((y · (a · y ⁻¹)) · x ⁻¹)) == a → ((x · y) · a) == (a · (x · y))
-      lemma₅ ass = (alternative-centralizer G) (lemma₄ ass)
-      closed-·-proof : ∀ {x y} → R x ∧ R y → R (x · y)
-      closed-·-proof Rx∧Ry = λ Aa → lemma₅ ((lemma₃ (∧-elim₁ Rx∧Ry) (∧-elim₂ Rx∧Ry)) Aa)
-      closed-⁻¹-proof : ∀ {x} → R x → R (x ⁻¹)
-      closed-⁻¹-proof Rx = λ Aa → symmetric-== ∘ invₑ₁₂▶ ∘ assoc₁▶ ∘ mul₁ ∘ invₑ₂₁◀ ∘ assoc₂◆ ∘ mul₂ ∘ Rx ← Aa
-
-  Center : ∀ {S} {F : S → S → S} (G : Group F) → S → Set
-  Center G g = Centralizer G _∈S (e ∵ all) g where open Group G
-
-  -- Center is a subgroup
-  center-subgroup : ∀ {S} {F : S → S → S} (G : Group F) → Subgroup G (Center G)
-  center-subgroup G = centralizer-subgroup G _∈S (e ∵ all) where open Group G
-
-  Normalizer : ∀ {S} {F : S → S → S} (G : Group F) (A : S → Set) → ∃ z , (A z) → S → Set
-  Normalizer G A ∃Az g = ∀ {a} → A (g · (a · g ⁻¹)) where open Group G
-
-  Stabilizer : ∀ {A S} {F : A → A → A} {φ : A → S → S} (G : Group F) → Action G S φ → (s : S) → (g : A) → Set
-  Stabilizer G A s g = φ g s == s where open Action A 
-
-  -- Cosets
-
-  Left-Coset : ∀ {S H} {F : S → S → S} (G : Group F) → Subgroup G H → S → S → Set
-  Left-Coset G H g h = R (g ⁻¹ · h)
-    where
-      open Group G
-      open Subgroup H
 
   Normal : ∀ {S H} {F : S → S → S} → (G : Group F) → Subgroup G H → Set
   Normal G H = ∀ {g n} → R n → R (g · (n · g ⁻¹))
@@ -299,10 +223,21 @@ module Math.Group where
       open Group G
       open Subgroup H
 
-  record Quotient-Group {S A} {F : S → S → S} (G : Group F) (H : Subgroup G A) (g : S) : Set where
-    N = Subgroup.R H -- Predicate : in subgroup H
-    R = λ h → Left-Coset G H g h -- Predicate : in left-coset
+  record Left-Coset {T A} {F : T → T → T} (G : Group F) (H : Subgroup G A) : Set where
+    constructor _+N
     open Group G
+    open Subgroup H
     field
-      normal : Normal G H
+      representative : S
+    subset : Subset S
+    subset = record {R = λ a → R (representative ⁻¹ · a)}
+
+  record Quotient-Group {T A} {F : T → T → T} (G : Group F) (N : Subgroup G A) (g : T) : Set where
+    open Group G
+    open Subgroup N
+    field
+      normal : Normal G N
+    Coset = Left-Coset G N
+    _⋆_ : Coset → Coset → Coset
+    (x +N) ⋆ (y +N) = (x · y) +N
     
