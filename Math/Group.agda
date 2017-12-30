@@ -37,6 +37,9 @@ module Math.Group where
     data _∈S (x : S) : Set where
       all : x ∈S
 
+    data overload-assoc : Set → Set where
+      overload-assoc₁ : ∀ {a b c d} → overload-assoc (((a · b) · c) == d)
+
     -- Reasoning Helper Theorems
     assoc₁◀ : ∀ {a b c d} → ((a · b) · c) == d → (a · (b · c)) == d
     assoc₁◀ eq = euclidean-== associative eq
