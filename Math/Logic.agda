@@ -25,20 +25,20 @@ module Math.Logic where
   infix 24 _∧_
   infix 24 _∨_
   infixr 23 ∃
-  infix 21 _==_
+  infix 21 _=̇_
   infix 21 _≠_
 
   -- Disjunction
-  data _∨_ : Set → Set → Set where
-    ∨-intro₁ : ∀ {φ ψ} → φ → φ ∨ ψ
-    ∨-intro₂ : ∀ {φ ψ} → ψ → φ ∨ ψ
+  data _∨_ {n} : Set n → Set n → Set n where
+    ∨ᵢᵣ : ∀ {φ ψ} → φ → φ ∨ ψ -- Introduce (∨ ψ)
+    ∨ᵢₗ : ∀ {φ ψ} → ψ → φ ∨ ψ -- Introduce (ψ ∨)
 
   -- Logical Conjunction
-  record _∧_ (φ ψ : Set) : Set where
-    constructor ∧-intro
+  record _∧_ {n} (φ ψ : Set n) : Set n where
+    constructor ∧ᵢ
     field
-      ∧-elim₁ : φ
-      ∧-elim₂ : ψ
+      ∧ₑᵣ : φ -- Eliminate (∧ ψ)
+      ∧ₑₗ : ψ -- Eliminate (ψ ∧)
   open _∧_
 
   -- True
@@ -48,23 +48,23 @@ module Math.Logic where
   -- False
   data ⊥ : Set where
 
-  -- Negation
-  ¬_ : Set → Set -- ¬_ instead of ¬ makes parsing simpler
+  -- -- Negation
+  ¬_ : ∀ {n} → Set n → Set n -- ¬_ instead of ¬ makes parsing simpler
   ¬ φ = φ → ⊥
 
-  -- Biconditional
-  _↔_ : Set → Set → Set
+  -- -- Biconditional
+  _↔_ : ∀ {n} → Set n → Set n → Set n
   φ ↔ ψ = (φ → ψ) ∧ (ψ → φ)
 
-  -- Equality
-  data _==_ {n} {S : Set n} (φ : S) : S → Set where
-    reflexive-== : φ == φ -- Equality is reflexive
+  -- -- Equality
+  data _≡_ {n} {S : Set n} (φ : S) : S → Set where
+    reflexive-≡ : φ ≡ φ -- Equality is reflexive
 
-  -- Inequality
+  -- -- Inequality
   _≠_ : ∀ {n} {S : Set n} → S → S → Set
-  φ ≠ ψ = ¬ (φ == ψ)
+  φ ≠ ψ = ¬ (φ ≡ ψ)
 
-  -- Existential quantification
+  -- -- Existential quantification
   record ∃ {n} {S : Set n} (P : S → Set) : Set n where
     constructor _∵_
     claim = P
@@ -73,62 +73,62 @@ module Math.Logic where
       proof : P witness
   syntax ∃ (λ x → e) = ∃ x , e
 
-  -- Uniqueness quantification
+  -- -- Uniqueness quantification
   record ∃! {n} {S : Set n} (P : S → Set) : Set n where
     constructor _∵_∵_
     claim = P
     field
       witness : S
       proof : P witness
-      uniqueness : ∀ {x} → P x → x == witness
+      uniqueness : ∀ {x} → P x → x ≡ witness
   syntax ∃! (λ x → e) = ∃! x , e
-
-  -- Postulate Double Negation Elimination
-  postulate ¬¬φ→φ : ∀ {φ} → ¬ ¬ φ → φ
-
-  -- The Principle of Explosion (𝐸𝑥 𝐹𝑎𝑙𝑠𝑜 𝑄𝑢𝑜𝑑𝑙𝑖𝑏𝑒𝑡)
-  postulate ⊥→φ : ∀ {φ : Set} → ⊥ → φ
 
   -- -- -- Theorems -- -- --
 
+  -- The Principle of Explosion (𝐸𝑥 𝐹𝑎𝑙𝑠𝑜 𝑄𝑢𝑜𝑑𝑙𝑖𝑏𝑒𝑡)
+  ⊥→φ : ∀ {n} {φ : Set n} → ⊥ → φ
+  ⊥→φ ()
+
   -- The Principle of Non-Contradiction
-  φ∧¬φ→⊥ : ∀ {φ : Set} → φ ∧ ¬ φ → ⊥
-  φ∧¬φ→⊥ (∧-intro φ ¬φ) = ¬φ φ
+  φ∧¬φ→⊥ : ∀ {n} {φ : Set n} → φ ∧ ¬ φ → ⊥
+  φ∧¬φ→⊥ (∧ᵢ φ ¬φ) = ¬φ φ
 
   ¬φ∨ψ→φ→ψ : ∀ {φ ψ : Set} → ¬ φ ∨ ψ → φ → ψ
-  ¬φ∨ψ→φ→ψ (∨-intro₁ ¬φ) = λ φ → ⊥→φ (φ∧¬φ→⊥ (∧-intro φ ¬φ))
-  ¬φ∨ψ→φ→ψ (∨-intro₂ ψ) = λ φ → ψ
+  ¬φ∨ψ→φ→ψ (∨ᵢᵣ ¬φ) = λ φ → ⊥→φ (φ∧¬φ→⊥ (∧ᵢ φ ¬φ))
+  ¬φ∨ψ→φ→ψ (∨ᵢₗ ψ) = λ φ → ψ
 
   ∨-elim : ∀ {φ ψ σ : Set} → φ ∨ ψ → (φ → σ) → (ψ → σ) → σ
-  ∨-elim (∨-intro₁ φ) φ→σ ψ→σ = φ→σ φ
-  ∨-elim (∨-intro₂ ψ) φ→σ ψ→σ = ψ→σ ψ
+  ∨-elim (∨ᵢᵣ φ) φ→σ ψ→σ = φ→σ φ
+  ∨-elim (∨ᵢₗ ψ) φ→σ ψ→σ = ψ→σ ψ
 
-  ¬¬[φ∨¬φ] : ∀ {φ} → ¬ ¬ (φ ∨ ¬ φ)
-  ¬¬[φ∨¬φ] = λ ¬[φ∨¬φ] → φ∧¬φ→⊥ (∧-intro (∨-intro₂ λ φ → lemma₁ ¬[φ∨¬φ] φ) ¬[φ∨¬φ])
+  ¬¬[φ∨¬φ] : ∀ {n} {φ : Set n} → ¬ ¬ (φ ∨ ¬ φ)
+  ¬¬[φ∨¬φ] = λ ¬[φ∨¬φ] → φ∧¬φ→⊥ (∧ᵢ (∨ᵢₗ λ φ → lemma₁ ¬[φ∨¬φ] φ) ¬[φ∨¬φ])
     where
     lemma₁ : ∀ {φ} → ¬ (φ ∨ ¬ φ) → φ → ⊥
-    lemma₁ ¬[φ∨¬φ] φ = φ∧¬φ→⊥ (∧-intro (∨-intro₁ φ) ¬[φ∨¬φ])
-
-  -- The Principle of Excluded Middle (𝑇𝑒𝑟𝑡𝑖𝑖 𝐸𝑥𝑐𝑙𝑢𝑠𝑖)
-  φ∨¬φ : ∀ {φ} → φ ∨ ¬ φ
-  φ∨¬φ = ¬¬φ→φ ¬¬[φ∨¬φ]
+    lemma₁ ¬[φ∨¬φ] φ = φ∧¬φ→⊥ (∧ᵢ (∨ᵢᵣ φ) ¬[φ∨¬φ])
 
   -- Equality is symmetric
-  symmetric-== : ∀ {n} {S : Set n} {φ ψ : S} → φ == ψ → ψ == φ
-  symmetric-== reflexive-== = reflexive-==
+  symmetric-≡ : ∀ {n} {S : Set n} {φ ψ : S} → φ ≡ ψ → ψ ≡ φ
+  symmetric-≡ reflexive-≡ = reflexive-≡
 
   -- Equality is transitive
-  transitive-== : ∀ {n} {S : Set n} {φ ψ σ : S} → φ == ψ → ψ == σ → φ == σ
-  transitive-== reflexive-== reflexive-== = reflexive-==
+  transitive-≡ : ∀ {n} {S : Set n} {φ ψ σ : S} → φ ≡ ψ → ψ ≡ σ → φ ≡ σ
+  transitive-≡ reflexive-≡ reflexive-≡ = reflexive-≡
 
   -- Equality is right euclidean
-  euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → (φ == ψ) → (φ == σ) → (ψ == σ)
-  euclidean-== reflexive-== reflexive-== = reflexive-==
+  euclidean-≡ : ∀ {n} {S : Set n} {φ ψ σ : S} → (φ ≡ ψ) → (φ ≡ σ) → (ψ ≡ σ)
+  euclidean-≡ reflexive-≡ reflexive-≡ = reflexive-≡
 
   -- Equality is left euclidean
-  left-euclidean-== : ∀ {n} {S : Set n} {φ ψ σ : S} → (ψ == φ) → (σ == φ) → (ψ == σ)
-  left-euclidean-== reflexive-== reflexive-== = reflexive-==
+  left-euclidean-≡ : ∀ {n} {S : Set n} {φ ψ σ : S} → (ψ ≡ φ) → (σ ≡ φ) → (ψ ≡ σ)
+  left-euclidean-≡ reflexive-≡ reflexive-≡ = reflexive-≡
 
   -- Applying closed functions to equal arguments
-  closure : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ == ψ → (f φ) == (f ψ)
-  closure f reflexive-== = reflexive-==
+  closure : ∀ {n} {A B : Set n} {φ ψ : A} → (f : A → B) → φ ≡ ψ → (f φ) ≡ (f ψ)
+  closure f reflexive-≡ = reflexive-≡
+
+  -- Classical-Logic. Assumes double negation elimination
+  module Classical-Logic (¬¬φ→φ : ∀ {n} {φ : Set n} → ¬ ¬ φ → φ) where
+    -- The Principle of Excluded Middle (𝑇𝑒𝑟𝑡𝑖𝑖 𝐸𝑥𝑐𝑙𝑢𝑠𝑖)
+    φ∨¬φ : ∀ {n} {φ : Set n} → φ ∨ ¬ φ
+    φ∨¬φ = ¬¬φ→φ ¬¬[φ∨¬φ]
