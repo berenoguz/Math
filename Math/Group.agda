@@ -135,7 +135,7 @@ module Math.Group where
 
   record Subgroup {ℓ} {T : Set ℓ} (G : Group T) (H : Subset T) : Set ℓ where
     open Group G
-    open Subset H
+    open Subset H public
     field
       nonempty : ∃ z , R z
       closed-· : ∀ {x y} → R x ∧ R y → R (x · y)
@@ -224,5 +224,27 @@ module Math.Group where
   Stabilizer : ∀ {ℓ₁ ℓ₂} {S : Set ℓ₁} {A : Set ℓ₂} {φ : S → A → A} (G : Group S) → Action G A φ → (s : A) → (g : S) → Set ℓ₂
   Stabilizer G A s g = φ g s ≡ s where open Action A 
 
-  -- -- Cosets
-  
+  -- Cosets
+  Normal : ∀ {ℓ} {S : Set ℓ} {Y : Subset S} → (G : Group S) → Subgroup G Y → Set ℓ
+  Normal G H = ∀ {g n} → R n → R (g · (n · g ⁻¹))
+    where
+      open Group G
+      open Subgroup H
+
+  record Left-Coset {ℓ} {T : Set ℓ} {Y : Subset T} (G : Group T) (H : Subgroup G Y) : Set ℓ where
+    constructor _+N
+    open Group G
+    open Subgroup H
+    field
+      representative : S
+    subset : Subset S
+    subset = record {R = λ a → R (representative ⁻¹ · a)}  
+
+  record Quotient-Group {ℓ} {T : Set ℓ} {A : Subset T} (G : Group T) (N : Subgroup G A) (g : T) : Set ℓ where
+    open Group G
+    open Subgroup N
+    field
+      normal : Normal G N
+    Coset = Left-Coset G N
+    _⋆_ : Coset → Coset → Coset
+    (x +N) ⋆ (y +N) = (x · y) +N
