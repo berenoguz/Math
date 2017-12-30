@@ -58,13 +58,13 @@ module Math.Function where
   Unique-Inverse : ∀ {n} {A : Set n} → (F : Binary-Operation A A A) → Identity F → Set n
   Unique-Inverse F record {witness = e} = ∀ {x} → ∃! x⁻¹ , (F x x⁻¹ ≡ e) ∧ (F x⁻¹ x ≡ e)
 
-  Injection : ∀ {S T} → (S → T) → Set
+  Injection : ∀ {n} {S T : Set n} → (S → T) → Set n
   Injection φ = ∀ {x y z} → (φ x ≡ z) ∧ (φ y ≡ z) → x ≡ y
 
-  Surjection : ∀ {S T} → (S → T) → Set
+  Surjection : ∀ {n} {S T : Set n} → (S → T) → Set n
   Surjection φ = ∀ {y} → ∃ x , (φ x ≡ y)
 
-  record Bijection {S T} (F : S → T) : Set where
+  record Bijection {ℓ} {S T : Set ℓ} (F : S → T) : Set ℓ where
     field
       injective : Injection F
       surjective : Surjection F
