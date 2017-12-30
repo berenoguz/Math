@@ -12,7 +12,7 @@ You need Agda version >=2.5.3 to check proofs, this is the only dependency. Run:
 make check
 ```
 
-This command will run `agda --safe` on all source files. You can confirm that all proofs are checked by Agda. Since classical and constructive theorems are separated via modules, agda can be run on `--safe` mode which makes sure I don't lead myself to contradiction.
+This command will run `agda --safe --without-K` on all source files. You can confirm that all proofs are checked by Agda. Since classical and constructive theorems are separated via modules, agda can be run on `--safe` mode which makes sure I don't lead myself to contradiction.
 
 ## License
 
