@@ -57,15 +57,15 @@ module Math.Logic where
   φ ↔ ψ = (φ → ψ) ∧ (ψ → φ)
 
   -- -- Equality
-  data _≡_ {n} {S : Set n} (φ : S) : S → Set where
+  data _≡_ {n} {S : Set n} (φ : S) : S → Set n where
     reflexive-≡ : φ ≡ φ -- Equality is reflexive
 
   -- -- Inequality
-  _≠_ : ∀ {n} {S : Set n} → S → S → Set
+  _≠_ : ∀ {n} {S : Set n} → S → S → Set n
   φ ≠ ψ = ¬ (φ ≡ ψ)
 
   -- -- Existential quantification
-  record ∃ {n} {S : Set n} (P : S → Set) : Set n where
+  record ∃ {n} {S : Set n} (P : S → Set n) : Set n where
     constructor _∵_
     claim = P
     field
@@ -74,7 +74,7 @@ module Math.Logic where
   syntax ∃ (λ x → e) = ∃ x , e
 
   -- -- Uniqueness quantification
-  record ∃! {n} {S : Set n} (P : S → Set) : Set n where
+  record ∃! {n} {S : Set n} (P : S → Set n) : Set n where
     constructor _∵_∵_
     claim = P
     field

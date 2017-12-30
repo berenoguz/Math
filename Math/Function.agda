@@ -46,16 +46,16 @@ module Math.Function where
   Commutative : ∀ {n} {A B : Set n} → Binary-Operation A A B → Set n
   Commutative F = ∀ {x y} → F x y ≡ F y x
 
-  Identity : ∀ {A : Set} → Binary-Operation A A A → Set
+  Identity : ∀ {n} {A : Set n} → Binary-Operation A A A → Set n
   Identity F = ∃ e , ∀ {x} → (F x e ≡ x) ∧ (F e x ≡ x)
 
-  Unique-Identity : ∀ {A : Set} → Binary-Operation A A A → Set
+  Unique-Identity : ∀ {n} {A : Set n} → Binary-Operation A A A → Set n
   Unique-Identity F = ∃! e , ∀ {x} → (F x e ≡ x) ∧ (F e x ≡ x)
 
-  Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → Set
+  Inverse : ∀ {n} {A : Set n} → (F : Binary-Operation A A A) → Identity F → Set n
   Inverse F record {witness = e} = ∀ {x} → ∃ x⁻¹ , (F x x⁻¹ ≡ e) ∧ (F x⁻¹ x ≡ e)
 
-  Unique-Inverse : ∀ {A : Set} → (F : Binary-Operation A A A) → Identity F → Set
+  Unique-Inverse : ∀ {n} {A : Set n} → (F : Binary-Operation A A A) → Identity F → Set n
   Unique-Inverse F record {witness = e} = ∀ {x} → ∃! x⁻¹ , (F x x⁻¹ ≡ e) ∧ (F x⁻¹ x ≡ e)
 
   Injection : ∀ {S T} → (S → T) → Set
