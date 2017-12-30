@@ -37,7 +37,7 @@ module Math.Group where
       inverse : Inverse _·_ identity
 
     -- A relation relating to all members of S
-    data _∈S (x : S) : Set where
+    data _∈S (x : S) : Set ℓ where
       all : x ∈S
 
     -- Reasoning Helpers
@@ -107,17 +107,16 @@ module Math.Group where
         minimum : ∀ {m} → (ℕ⁺.value m) < n → (x ^ n) ≠ e
   
   -- Group Homomorphism
-  record Homomorphism {S T} (G : Group S) (H : Group T) (f : S → T) : Set where
+  record Homomorphism {ℓ₁ ℓ₂} {S : Set ℓ₁} {T : Set ℓ₂} (G : Group S) (H : Group T) (f : S → T) : Set (ℓ₁ ⊔ ℓ₂) where
       φ = f
       private _★_ = (Group._·_ G)
       private _◇_ = (Group._·_ H)
       field
         homomorphism : ∀ {x y} → φ (x ★ y) ≡ (φ x ◇ φ y)
-      kernel : S → Set
-      kernel g = φ g ≡ (Group.e H)
+      kernel = λ g → φ g ≡ (Group.e H)
 
   -- Group Isomorphism
-  record Isomorphism {S T} (G : Group S) (H : Group T) (f : S → T) : Set where
+  record Isomorphism {ℓ} {S T : Set ℓ} (G : Group S) (H : Group T) (f : S → T) : Set ℓ where
       φ = f    
       field
         homomorphism-proof : Homomorphism G H φ
@@ -142,7 +141,7 @@ module Math.Group where
       closed-⁻¹ : ∀ {x} → R x → R (x ⁻¹)
 
   -- Subgroup Criterion
-  subgroup-criterion : ∀ {S} → (G : Group S) → (R : S → Set)
+  subgroup-criterion : ∀ {ℓ} {S : Set ℓ} → (G : Group S) → (R : S → Set ℓ)
     → ∃ z , R z → (∀ {x y} → R x ∧ R y → R ((Group._·_ G) x ((Group._⁻¹ G) y)))
     → Subgroup G R
   subgroup-criterion G R ∃Rz ass = record {
@@ -163,14 +162,14 @@ module Math.Group where
     closed-·-proof : ∀ {x y} → R x ∧ R y → R (x · y)
     closed-·-proof (∧ᵢ Rx Ry) = lemma (ass (∧ᵢ (closed-⁻¹-proof Ry) Rx))
 
-  Centralizer : ∀ {S} (G : Group S) (A : S → Set) → ∃ z , (A z) → S → Set
+  Centralizer : ∀ {ℓ} {S : Set ℓ} (G : Group S) (A : S → Set ℓ) → ∃ z , (A z) → S → Set ℓ
   Centralizer G A ∃Az g = ∀ {a} → A a → (g · a) ≡ (a · g) where open Group G
 
   -- Alternative definition of centralizer
-  alternative-centralizer : ∀ {S} {g a} → (G : Group S) → ((Group._·_ G) g ((Group._·_ G) a ((Group._⁻¹ G) g))) ≡ a → ((Group._·_ G) g a) ≡ ((Group._·_ G) a g)
+  alternative-centralizer : ∀ {ℓ} {S : Set ℓ} {g a} → (G : Group S) → ((Group._·_ G) g ((Group._·_ G) a ((Group._⁻¹ G) g))) ≡ a → ((Group._·_ G) g a) ≡ ((Group._·_ G) a g)
   alternative-centralizer G ass = euclidean-≡ (mul₂ ∘ invₑ₂₂▶ ← associative) (assoc₁◀ ∘ mul₁ ← ass) where open Group G
 
-  centralizer-subgroup : ∀ {S} (G : Group S) (A : S → Set)
+  centralizer-subgroup : ∀ {ℓ} {S : Set ℓ} (G : Group S) (A : S → Set ℓ)
     → (∃Az : ∃ z , (A z)) → Subgroup G (Centralizer G A ∃Az)
   centralizer-subgroup G A ∃Az = record {
                            nonempty = Re ;
@@ -197,17 +196,17 @@ module Math.Group where
       closed-⁻¹-proof : ∀ {x} → R x → R (x ⁻¹)
       closed-⁻¹-proof Rx = λ Aa → symmetric-≡ ∘ invₑ₁₂▶ ∘ assoc₁▶ ∘ mul₁ ∘ invₑ₂₁◀ ∘ assoc₂◆ ∘ mul₂ ∘ Rx ← Aa
 
-  Center : ∀ {S} (G : Group S) → S → Set
+  Center : ∀ {ℓ} {S : Set ℓ} (G : Group S) → S → Set ℓ
   Center G g = Centralizer G _∈S (e ∵ all) g where open Group G
 
   -- Center is a subgroup
-  center-subgroup : ∀ {S} (G : Group S) → Subgroup G (Center G)
+  center-subgroup : ∀ {ℓ} {S : Set ℓ} (G : Group S) → Subgroup G (Center G)
   center-subgroup G = centralizer-subgroup G _∈S (e ∵ all) where open Group G
 
-  Normalizer : ∀ {S} (G : Group S) (A : S → Set) → ∃ z , (A z) → S → Set
+  Normalizer : ∀ {ℓ} {S : Set ℓ} (G : Group S) (A : S → Set ℓ) → ∃ z , (A z) → S → Set ℓ
   Normalizer G A ∃Az g = ∀ {a} → A (g · (a · g ⁻¹)) where open Group G
 
-  Stabilizer : ∀ {A n} {S : Set n} {φ : S → A → A} (G : Group S) → Action G A φ → (s : A) → (g : S) → Set
+  Stabilizer : ∀ {ℓ₁ ℓ₂} {S : Set ℓ₁} {A : Set ℓ₂} {φ : S → A → A} (G : Group S) → Action G A φ → (s : A) → (g : S) → Set ℓ₂
   Stabilizer G A s g = φ g s ≡ s where open Action A 
 
   -- Cosets

@@ -20,7 +20,7 @@ module Math.Relation where
   open import Agda.Primitive using (_⊔_; lzero; lsuc)
 
   -- Substitute
-  subst : ∀ {S : Set} {x y : S} → (R : S → Set) → R x → x ≡ y → R y
+  subst : ∀ {n} {S : Set n} {x y : S} → (R : S → Set n) → R x → x ≡ y → R y
   subst _ Rx _≡_.reflexive-≡ = Rx
 
   Relation : ∀ {n} → Set n → Set ((lsuc lzero) ⊔ n)

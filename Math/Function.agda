@@ -30,7 +30,7 @@ module Math.Function where
   _∘_ : ∀ {n} {A B C : Set n} → (B → C) → (A → B) → (A → C)
   f ∘ g = λ x → f (g x)
 
-  _←_ : ∀ {A B : Set} → (A → B) → A → B
+  _←_ : ∀ {n m} {A : Set n} {B : Set m} → (A → B) → A → B
   f ← a = f a
 
   _^_ : ∀ {n} {A : Set n} → (A → A) → ℕ → (A → A)
@@ -64,7 +64,7 @@ module Math.Function where
   Surjection : ∀ {n} {S T : Set n} → (S → T) → Set n
   Surjection φ = ∀ {y} → ∃ x , (φ x ≡ y)
 
-  record Bijection {ℓ} {S T : Set ℓ} (F : S → T) : Set ℓ where
+  record Bijection {n} {S T : Set n} (F : S → T) : Set n where
     field
       injective : Injection F
       surjective : Surjection F
