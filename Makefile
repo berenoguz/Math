@@ -5,6 +5,6 @@ SRC=$(wildcard Math/*.agda)
 check: $(SRC)
 
 %.agda: FORCE
-	agda $@
+	agda --safe $@
 
 FORCE:

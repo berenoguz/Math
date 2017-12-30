@@ -16,41 +16,42 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 module Math.Relation where
-  open import Math.Logic using (¬_ ; _∨_ ; _==_ ; _≠_)
+  open import Math.Logic using (¬_ ; _∨_ ; _≡_ ; _≠_)
+  open import Agda.Primitive using (_⊔_; lzero; lsuc)
 
   -- Substitute
-  subst : ∀ {S : Set} {x y : S} → (R : S → Set) → R x → x == y → R y
-  subst _ Rx _==_.reflexive-== = Rx
+  subst : ∀ {S : Set} {x y : S} → (R : S → Set) → R x → x ≡ y → R y
+  subst _ Rx _≡_.reflexive-≡ = Rx
 
-  Relation : Set → Set₁
+  Relation : ∀ {n} → Set n → Set ((lsuc lzero) ⊔ n)
   Relation S = S → S → Set
 
-  Reflexive : ∀ {S : Set} → Relation S → Set
+  Reflexive : ∀ {n} {S : Set n} → Relation S → Set n
   Reflexive R = ∀ {x} → R x x
 
-  Irreflexive : ∀ {S : Set} → Relation S → Set
+  Irreflexive : ∀ {n} {S : Set n} → Relation S → Set n
   Irreflexive R = ∀ {x y} → R x y → x ≠ y
 
-  Symmetric : ∀ {S : Set} → Relation S → Set
+  Symmetric : ∀ {n} {S : Set n} → Relation S → Set n
   Symmetric R = ∀ {x y} → R x y → R y x
 
-  Antisymmetric : ∀ {S : Set} → Relation S → Set
-  Antisymmetric R = ∀ {x y} → R x y → R y x → x == y
+  Antisymmetric : ∀ {n} {S : Set n} → Relation S → Set n
+  Antisymmetric R = ∀ {x y} → R x y → R y x → x ≡ y
 
-  Asymmetric : ∀ {S : Set} → Relation S → Set
+  Asymmetric : ∀ {n} {S : Set n} → Relation S → Set n
   Asymmetric R = ∀ {x y} → R x y → ¬ (R y x)
 
-  Transitive : ∀ {S : Set} → Relation S → Set
+  Transitive : ∀ {n} {S : Set n} → Relation S → Set n
   Transitive R = ∀ {x y z} → R x y → R y z → R x z
 
-  Right-Euclidean : ∀ {S : Set} → Relation S → Set
+  Right-Euclidean : ∀ {n} {S : Set n} → Relation S → Set n
   Right-Euclidean R = ∀ {x y z} → R x y → R x z → R y z
 
-  Left-Euclidean : ∀ {S : Set} → Relation S → Set
+  Left-Euclidean : ∀ {n} {S : Set n} → Relation S → Set n
   Left-Euclidean R = ∀ {x y z} → R y x → R z x → R y z
 
-  Comparison : ∀ {S : Set} → Relation S → Set
+  Comparison : ∀ {n} {S : Set n} → Relation S → Set n
   Comparison R = ∀ {x y z} → R x z → R x y ∨ R y z
 
-  Total : ∀ {S : Set} → Relation S → Set
+  Total : ∀ {n} {S : Set n} → Relation S → Set n
   Total R = ∀ {x y} → R x y ∨ R y x

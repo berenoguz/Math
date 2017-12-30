@@ -17,34 +17,28 @@
 -- along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 module Math.NaturalNumbers where
-  open import Math.Logic using (_≠_ ; ∃)
+  open import Math.Logic using (_∨_; _∧_; ¬_; _≡_; _≠_; ∃)
+  open import Agda.Builtin.Nat using (_+_) renaming
+    (Nat to ℕ;
+    suc to _′;
+    _*_ to _·_) public
 
-  infixl 21 _′
-
-  -- Definition of Natural Numbers
-  data ℕ : Set where
-    0̇ : ℕ -- 0 is in ℕ
-    _′ : ℕ → ℕ -- For every natural, its successor is in ℕ
-  1̇ = 0̇ ′
-  2̇ = 1̇ ′
-  3̇ = 2̇ ′
-
-  -- Definition of natural addition
-  _+_ : ℕ → ℕ → ℕ
-  n + 0̇ = n
-  n + m ′ = (n + m) ′
-
-  _·_ : ℕ → ℕ → ℕ
-  0̇ · 0̇ = 0̇
-  n ′ · 0̇ = 0̇
-  0̇ · m ′ = 0̇
-  n ′ · m ′ = n ′ + (n · m ′)
+  infixl 19 _<_
 
   data _<_ (n : ℕ) : ℕ → Set where
     <-base : n < n ′
     <-ind : ∀ {m} → n < m → n < m ′
 
+  _≤_ : ℕ → ℕ → Set
+  x ≤ y = (x < y) ∨ (x ≡ y)
+
+  _≥_ : ℕ → ℕ → Set
+  x ≥ y = ¬ (x < y)
+
+  _>_ : ℕ → ℕ → Set
+  x > y = (x ≥ y) ∧ (x ≠ y)
+
   record ℕ⁺ : Set where
     field
       value : ℕ
-      positive : 0̇ < value
+      positive : 0 < value

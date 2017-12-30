@@ -25,7 +25,7 @@ module Math.Logic where
   infix 24 _∧_
   infix 24 _∨_
   infixr 23 ∃
-  infix 21 _=̇_
+  infix 21 _≡_
   infix 21 _≠_
 
   -- Disjunction
