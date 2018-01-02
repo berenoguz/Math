@@ -26,7 +26,7 @@ Basic logical connectives and quantifiers are defined. Basic theorems are proved
 
 ### Group Theory
 
-Defined group. Defined group order, group homomorphism, group isomorphism, group action, subgroup and group centralizer.
+Defined group. Defined group order, group homomorphism, group isomorphism, group action, subgroup and group centralizer. Defined quotient group.
 
 Proved theorems:
 
@@ -39,3 +39,5 @@ Completed all standard group bookkeeping theorems:
 Subgroup Theorems:
  * Subgroup criterion
  * Centralizer is a subgroup
+ 
+ 
