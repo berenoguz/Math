@@ -18,7 +18,7 @@
 
 module Math.Group where
   open import Math.Relation using (subst)
-  open import Math.Function hiding (_^_)
+  open import Math.Function hiding (_^_; id)
   open import Math.Logic
   open _∧_
   open import Math.NaturalNumbers using (ℕ ; _<_ ; _′ ; ℕ⁺)
@@ -248,3 +248,20 @@ module Math.Group where
     Coset = Left-Coset G N
     _⋆_ : Coset → Coset → Coset
     (x +N) ⋆ (y +N) = (x · y) +N
+    group : Group Coset
+    group = record {
+          _·_ = _⋆_ ;
+          associative = associative-proof ;
+          identity = id ∵ identity-proof ;
+          inverse = inverse-proof
+      }
+      where
+        id = e +N
+        p : ∀ {x y} → (x ⋆ y) ≡ (x ⋆ y)
+        p = {!!}
+        associative-proof : ∀ {x y z} → ((x ⋆ y) ⋆ z) ≡ (x ⋆ (y ⋆ z))
+        associative-proof = closure _+N associative
+        identity-proof : ∀ {x} → ((x ⋆ id) ≡ x) ∧ ((id ⋆ x) ≡ x)
+        identity-proof = ∧ᵢ (closure _+N (∧ₑᵣ (∃.proof identity))) (closure _+N (∧ₑₗ (∃.proof identity)))
+        inverse-proof : ∀ {x} → ∃ x⁻¹ , ((x ⋆ x⁻¹) ≡ id) ∧ ((x⁻¹ ⋆ x) ≡ id)
+        inverse-proof = ((∃.witness inverse) +N) ∵ (∧ᵢ (closure _+N (∧ₑᵣ (∃.proof inverse))) (closure _+N (∧ₑₗ (∃.proof inverse))))
