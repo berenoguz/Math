@@ -39,6 +39,14 @@ module Math.Reasoning where
       → (a · (b · c)) ≡ (f · (g · h)) → ((a · b) · c) ≡ ((f · g) · h)
     assoc₂◆ eq = assoc₂◀ (assoc₂▶ eq)
 
+  module Commutative {ℓ} {S : Set ℓ} (_·_ : S → S → S) (commutative : Commutative _·_) where
+    comm◀ : ∀ {a b d} → (a · b) ≡ d → (b · a) ≡ d
+    comm◀ eq = transitive-≡ commutative eq
+    comm▶ : ∀ {a b d} → d ≡ (a · b) → d ≡ (b · a)
+    comm▶ eq = symmetric-≡ ∘ comm◀ ∘ symmetric-≡ ← eq
+    comm◆ : ∀ {a b c d} → (a · b) ≡ (c · d) → (b · a) ≡ (d · c)
+    comm◆ eq = comm◀ ∘ comm▶ ← eq
+
   module Identity {ℓ} {S : Set ℓ} (_·_ : S → S → S) (identity : Identity _·_) where
     e = witness identity
     identity-e = proof identity

@@ -58,6 +58,9 @@ module Math.Function where
   Unique-Inverse : ∀ {n} {A : Set n} → (F : Binary-Operation A A A) → Identity F → Set n
   Unique-Inverse F record {witness = e} = ∀ {x} → ∃! x⁻¹ , (F x x⁻¹ ≡ e) ∧ (F x⁻¹ x ≡ e)
 
+  Distributive : ∀ {n} {A : Set n} → (F : Binary-Operation A A A) → (G : Binary-Operation A A A) → Set n
+  Distributive F G = ∀ {x y z} → ((G (F x y) z) ≡ (F (G x z) (G y z))) ∧ ((G z (F x y)) ≡ (F (G z x) (G z y)))
+
   Injection : ∀ {n} {S T : Set n} → (S → T) → Set n
   Injection φ = ∀ {x y z} → (φ x ≡ z) ∧ (φ y ≡ z) → x ≡ y
 
