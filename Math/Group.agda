@@ -257,8 +257,6 @@ module Math.Group where
       }
       where
         id = e +N
-        p : ∀ {x y} → (x ⋆ y) ≡ (x ⋆ y)
-        p = {!!}
         associative-proof : ∀ {x y z} → ((x ⋆ y) ⋆ z) ≡ (x ⋆ (y ⋆ z))
         associative-proof = closure _+N associative
         identity-proof : ∀ {x} → ((x ⋆ id) ≡ x) ∧ ((id ⋆ x) ≡ x)
