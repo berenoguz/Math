@@ -39,3 +39,6 @@ Completed all standard group bookkeeping theorems:
 Subgroup Theorems:
  * Subgroup criterion
  * Centralizer is a subgroup
+
+Quotient Group:
+ * Proved that cosets of normal subgroups form a group
